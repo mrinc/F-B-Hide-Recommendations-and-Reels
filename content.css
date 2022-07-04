@@ -1,0 +1,30 @@
+.redact-elem  {
+  height: 45px;
+  margin-bottom: 5px;
+}
+.redact-elem > div {
+  display: none !important;
+}
+
+.redact-elem::before {
+  content: "Was something before";
+  display: block;
+  position: absolute;
+  width: calc(100% - 20px);
+  border-radius: var(--card-corner-radius);
+  height: 15px;
+  padding: 10px;
+  text-align: center;
+  color: var(--primary-text);
+  /*background: var(--web-wash);*/
+  background: var(--surface-background);
+}
+.redact-elem.redact-elem-suggestions::before {
+  content: "Was a suggestion before";
+}
+.redact-elem.redact-elem-reels::before {
+  content: "Was a reel before";
+}
+.redact-elem.redact-elem-ads::before {
+  content: "Was an AD before";
+}
