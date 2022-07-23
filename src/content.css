@@ -1,8 +1,9 @@
-.redact-elem  {
+.redact-elem {
   height: 45px;
   margin-bottom: 5px;
 }
-.redact-elem > div {
+
+.redact-elem>div {
   display: none !important;
 }
 
@@ -19,12 +20,19 @@
   /*background: var(--web-wash);*/
   background: var(--surface-background);
 }
+
 .redact-elem.redact-elem-suggestions::before {
   content: "Was a suggestion before";
 }
+
 .redact-elem.redact-elem-reels::before {
   content: "Was a reel before";
 }
+
 .redact-elem.redact-elem-ads::before {
   content: "Was an AD before";
+}
+
+div[aria-label="Stories"] {
+  display: none !important;
 }
