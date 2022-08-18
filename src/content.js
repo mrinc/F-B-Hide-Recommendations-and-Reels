@@ -1,7 +1,7 @@
 let ccDebounceTimer = null;
-const contentCleaner = (key, isreRun = false) => {
+const contentCleaner = (key, isreRun = false, config) => {
   if (window.pausecc === true) return;
-  console.log("contentCleaner:v1.16:" + key);
+  console.log("contentCleaner:v1.18:" + key);
   const feed = window.document.querySelectorAll('[role="feed"]');
   if (feed.length !== 1) {
     console.log("contentCleaner: ignore");
@@ -11,6 +11,7 @@ const contentCleaner = (key, isreRun = false) => {
     total: feed[0].children.length,
     alreadyRedacted: 0,
     ignored: 0,
+    opsignored: 0,
     redacted: {
       total: 0,
       reels: 0,
@@ -29,6 +30,11 @@ const contentCleaner = (key, isreRun = false) => {
       continue;
     }
     if (elem.innerHTML.indexOf("Reels and short videos") >= 0) {
+      if (config.reels === true) {
+        elem.classList.add("no-redact-elem");
+        result.opsignored += 1;
+        continue;
+      }
       elem.classList.add("redact-elem");
       elem.classList.add("redact-elem-reels");
       result.redacted.reels += 1;
@@ -55,6 +61,11 @@ const contentCleaner = (key, isreRun = false) => {
       continue;
     }
     if (elem.innerHTML.indexOf(">Suggested for you<") >= 0) {
+      if (config.suggestions === true) {
+        elem.classList.add("no-redact-elem");
+        result.opsignored += 1;
+        continue;
+      }
       elem.classList.add("redact-elem");
       elem.classList.add("redact-elem-suggestions");
       result.redacted.suggestions += 1;
@@ -75,6 +86,7 @@ const contentCleaner = (key, isreRun = false) => {
     result.alreadyRedacted;
   console.log(
     `contentCleaner: ` +
+      `[opsIgnored: ${result.opsignored}/${result.total}] ` +
       `[alreadyRedacted: ${result.alreadyRedacted}/${result.total}] ` +
       `[ignored: ${result.ignored}/${result.total}] ` +
       `[monitoring: ${result.monitoring}/${result.total}] ` +
@@ -90,41 +102,57 @@ const contentCleaner = (key, isreRun = false) => {
   if (isreRun) return;
   ccDebounceTimer = setTimeout(() => {
     //if (`${lastAction}` != lastActionKey) return;
-    contentCleaner("re-clear:" + key, true);
+    contentCleaner("re-clear:" + key, true, config);
   }, 2000);
 };
-let contentClearTimer = setInterval(() => contentCleaner("timer"), 60000);
-contentCleaner();
 
-let lastAction = 0;
-let debounceTimer = null;
-document.addEventListener("scroll", function (e) {
-  let now = new Date().getTime();
+document.body.onload = () => {
+  chrome.storage.sync.get("data", (items) => {
+    let config = (items || {}).data || {};
+    console.log("Known CC Config", config);
+    let contentClearTimer = setInterval(
+      () => contentCleaner("timer", false, config),
+      60000
+    );
+    contentCleaner(undefined, false, config);
 
-  if (now - lastAction > 1000) {
-    clearTimeout(debounceTimer);
-    contentCleaner("force");
-    lastAction = now;
-    return;
-  }
-  if (now - lastAction > 250) {
-    clearTimeout(debounceTimer);
-    //let lastActionKey = `${lastAction}`;
-    debounceTimer = setTimeout(() => {
-      //if (`${lastAction}` != lastActionKey) return;
-      contentCleaner("scroll");
-      lastAction = now;
-    }, 500);
-  }
-});
+    let lastAction = 0;
+    let debounceTimer = null;
+    document.addEventListener("scroll", function (e) {
+      let now = new Date().getTime();
 
-window.addEventListener("blur", () => {
-  contentCleaner("blur");
-  clearInterval(contentClearTimer);
-  contentClearTimer = setInterval(() => contentCleaner("timer"), 60000);
-});
-window.addEventListener("focus", () => {
-  contentCleaner("focus");
-  clearInterval(contentClearTimer);
-  contentClearTimer = setInterval(() => contentCleaner("timer"), 10000);
-});
+      if (now - lastAction > 1000) {
+        clearTimeout(debounceTimer);
+        contentCleaner("force", false, config);
+        lastAction = now;
+        return;
+      }
+      if (now - lastAction > 250) {
+        clearTimeout(debounceTimer);
+        //let lastActionKey = `${lastAction}`;
+        debounceTimer = setTimeout(() => {
+          //if (`${lastAction}` != lastActionKey) return;
+          contentCleaner("scroll", false, config);
+          lastAction = now;
+        }, 500);
+      }
+    });
+
+    window.addEventListener("blur", () => {
+      contentCleaner("blur", false, config);
+      clearInterval(contentClearTimer);
+      contentClearTimer = setInterval(
+        () => contentCleaner("timer", false, config),
+        60000
+      );
+    });
+    window.addEventListener("focus", () => {
+      contentCleaner("focus", false, config);
+      clearInterval(contentClearTimer);
+      contentClearTimer = setInterval(
+        () => contentCleaner("timer", false, config),
+        10000
+      );
+    });
+  });
+};
