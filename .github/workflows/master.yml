@@ -32,15 +32,15 @@ jobs:
       - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
       - run: bash ./build-package.sh
 
-      - name: Upload & release Chrome Extension
-        uses: mnao305/chrome-extension-upload@3.0.0
-        with:
-          file-path: dist/packed/chrome.latest.zip
-          extension-id: "pfkcihjlfejenpmhkhgbannfhofclncj"
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          publish-target: trustedTesters
+      #- name: Upload & release Chrome Extension
+      #  uses: mnao305/chrome-extension-upload@3.0.0
+      #  with:
+      #    file-path: dist/packed/chrome.latest.zip
+      #    extension-id: "pfkcihjlfejenpmhkhgbannfhofclncj"
+      #    client-id: ${{ secrets.CHROME_CLIENT_ID }}
+      #    client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+      #    refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+      #    publish-target: trustedTesters
 
       - name: Upload & release Firefox Extension
         uses: kewisch/action-web-ext@v1
