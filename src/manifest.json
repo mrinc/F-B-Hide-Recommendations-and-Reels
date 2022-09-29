@@ -1,29 +1,5 @@
 {
-  "manifest_version": 3,
   "name": "Facebook Hide Recommendations and Reels",
-  "version": "1.18",
-  "description": "This extension hides Reels and recommendations on Facebook",
-  "background": [{
-    "scripts": ["background.js"],
-    "persistent": true
-  }],
-  "permissions": [
-    "storage"
-  ],
-  "action": {
-    "default_icon": {
-      "16": "logo.png",
-      "24": "logo.png",
-      "32": "logo.png"
-    },
-    "default_title": "Options",
-    "default_popup": "popup.html"
-  },
-  "content_scripts": [{
-    "matches": [
-      "https://www.facebook.com/"
-    ],
-    "js": ["content.js"],
-    "css": ["content.css"]
-  }]
+  "version": "1.18.1",
+  "description": "This extension hides Reels and recommendations on Facebook"
 }

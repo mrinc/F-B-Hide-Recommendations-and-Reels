@@ -1,7 +1,9 @@
 let ccDebounceTimer = null;
 const contentCleaner = (key, isreRun = false, config) => {
   if (window.pausecc === true) return;
-  console.log("contentCleaner:v1.18:" + key);
+  console.log(
+    "contentCleaner:v" + browser.runtime.getManifest().version + " " + key
+  );
   const feed = window.document.querySelectorAll('[role="feed"]');
   if (feed.length !== 1) {
     console.log("contentCleaner: ignore");

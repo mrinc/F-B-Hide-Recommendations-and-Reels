@@ -1,0 +1,40 @@
+{
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{30f635f1-e207-4235-b4d5-acf670463325}"
+    }
+  },
+  "manifest_version": 2,
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "permissions": [
+    "menus",
+    "activeTab",
+    "storage"
+  ],
+  "icons": {
+    "16": "logo.png",
+    "24": "logo.png",
+    "48": "logo.png",
+    "32": "logo.png"
+  },
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": {
+      "16": "logo.png",
+      "24": "logo.png",
+      "32": "logo.png",
+      "48": "logo.png"
+    },
+    "default_title": "Options",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [{
+    "matches": [
+      "https://www.facebook.com/*"
+    ],
+    "js": ["content.js"],
+    "css": ["content.css"]
+  }]
+}

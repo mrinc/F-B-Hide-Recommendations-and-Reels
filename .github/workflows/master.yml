@@ -1,0 +1,60 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: semver
+        id: semver
+        uses: paulhatch/semantic-version@v4.0.3
+        with:
+          tag_prefix: "v"
+          branch: master
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          format: "${major}.${minor}.${patch}"
+          change_path: "./"
+          bump_each_commit: true
+          namespace: ""
+
+      - name: output version
+        run: |
+          echo "Setting version too: ${{ steps.semver.outputs.version }}";
+      - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
+      - run: bash ./build-package.sh
+
+      - name: Upload & release Chrome Extension
+        uses: mnao305/chrome-extension-upload@3.0.0
+        with:
+          file-path: dist/packed/chrome.latest.zip
+          extension-id: "pfkcihjlfejenpmhkhgbannfhofclncj"
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          publish-target: trustedTesters
+
+      - name: Upload & release Firefox Extension
+        uses: kewisch/action-web-ext@v1
+        with:
+          cmd: sign
+          source: dist/unpacked/firefox
+          filename: dist/packed/
+          channel: unlisted
+          apiKey: ${{ secrets.FIREFOX_API_KEY }}
+          apiSecret: ${{ secrets.FIREFOX_API_SECRET }}
+          timeout: 900000
+
+      - run: bash mv dist/packed/*.xpi dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi
+      - run: bash cp dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi dist/packed/firefox.latest.signed.xpi
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: published-package
+          path: dist/packed/*
