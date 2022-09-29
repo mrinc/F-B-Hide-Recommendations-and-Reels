@@ -47,7 +47,7 @@ jobs:
         with:
           cmd: sign
           source: dist/unpacked/firefox
-          filename: dist/packed/
+          artifacts: dist/packed/
           channel: unlisted
           apiKey: ${{ secrets.FIREFOX_API_KEY }}
           apiSecret: ${{ secrets.FIREFOX_API_SECRET }}
