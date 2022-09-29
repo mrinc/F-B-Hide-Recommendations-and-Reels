@@ -12,18 +12,12 @@
     "storage"
   ],
   "icons": {
-    "16": "logo.png",
-    "24": "logo.png",
-    "48": "logo.png",
-    "32": "logo.png"
+    "128": "logo.png"
   },
   "browser_action": {
     "browser_style": true,
     "default_icon": {
-      "16": "logo.png",
-      "24": "logo.png",
-      "32": "logo.png",
-      "48": "logo.png"
+      "128": "logo.png"
     },
     "default_title": "Options",
     "default_popup": "popup.html"

@@ -18,7 +18,7 @@ jobs:
         uses: paulhatch/semantic-version@v4.0.3
         with:
           tag_prefix: "v"
-          branch: master
+          branch: develop
           major_pattern: "(MAJOR)"
           minor_pattern: "(MINOR)"
           format: "${major}.${minor}.${patch}"
@@ -60,7 +60,7 @@ jobs:
         uses: paulhatch/semantic-version@v4.0.3
         with:
           tag_prefix: "v"
-          branch: master
+          branch: develop
           major_pattern: "(MAJOR)"
           minor_pattern: "(MINOR)"
           format: "${major}.${minor}.${patch}"
