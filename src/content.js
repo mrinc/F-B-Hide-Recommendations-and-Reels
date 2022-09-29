@@ -1,13 +1,30 @@
 let ccDebounceTimer = null;
+let definedFeedHolder = false;
 const contentCleaner = (key, isreRun = false, config) => {
   if (window.pausecc === true) return;
   console.log(
     "contentCleaner:v" + browser.runtime.getManifest().version + " " + key
   );
-  const feed = window.document.querySelectorAll('[role="feed"]');
+  let feed = definedFeedHolder === true ? window.document.getElementsByClassName('defined-feed-holder') : window.document.querySelectorAll('[role="feed"]');
   if (feed.length !== 1) {
-    console.log("contentCleaner: ignore");
-    return;
+    console.log("contentCleaner: try main finder");
+    for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
+      if (feedHeader.innerText === 'News Feed posts') {
+        console.log("contentCleaner: try main finder - OK");
+        definedFeedHolder = true;
+        feedHeader.parentNode.classList.add('defined-feed-holder');
+        feed = [feedHeader.parentNode];
+        break;
+      }
+    }
+
+    if (feed.length !== 1) {
+      console.log("contentCleaner: ignore");
+      return;
+    }
+  } else {
+    definedFeedHolder = true;
+    feed[0].classList.add('defined-feed-holder');
   }
   let result = {
     total: feed[0].children.length,

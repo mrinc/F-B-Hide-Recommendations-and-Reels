@@ -9,8 +9,6 @@
     "scripts": ["background.js"]
   },
   "permissions": [
-    "menus",
-    "activeTab",
     "storage"
   ],
   "icons": {

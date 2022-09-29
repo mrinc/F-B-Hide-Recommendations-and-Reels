@@ -6,7 +6,7 @@ on:
       - "master"
 
 jobs:
-  build-publish:
+  build-publish-chrome:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -30,17 +30,48 @@ jobs:
         run: |
           echo "Setting version too: ${{ steps.semver.outputs.version }}";
       - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
-      - run: bash ./build-package.sh
+      - run: bash ./build-package.sh chrome
 
-      #- name: Upload & release Chrome Extension
-      #  uses: mnao305/chrome-extension-upload@3.0.0
-      #  with:
-      #    file-path: dist/packed/chrome.latest.zip
-      #    extension-id: "pfkcihjlfejenpmhkhgbannfhofclncj"
-      #    client-id: ${{ secrets.CHROME_CLIENT_ID }}
-      #    client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-      #    refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-      #    publish-target: trustedTesters
+      - name: Upload & release Chrome Extension
+        uses: mnao305/chrome-extension-upload@3.0.0
+        with:
+          file-path: dist/packed/chrome.latest.zip
+          extension-id: "pfkcihjlfejenpmhkhgbannfhofclncj"
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          publish-target: trustedTesters
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: published-chrome-v${{ steps.semver.outputs.version }}
+          path: dist/packed/*
+
+  build-publish-firefox:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: semver
+        id: semver
+        uses: paulhatch/semantic-version@v4.0.3
+        with:
+          tag_prefix: "v"
+          branch: master
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          format: "${major}.${minor}.${patch}"
+          change_path: "./"
+          bump_each_commit: true
+          namespace: ""
+
+      - name: output version
+        run: |
+          echo "Setting version too: ${{ steps.semver.outputs.version }}";
+      - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
+      - run: bash ./build-package.sh firefox
 
       - name: Build Firefox Extension
         uses: kewisch/action-web-ext@v1
@@ -57,7 +88,7 @@ jobs:
           cmd: sign
           source: dist/packed/firefox.latest.unsigned.xpi
           artifacts: dist/packed/
-          channel: unlisted
+          channel: listed
           apiKey: ${{ secrets.FIREFOX_API_KEY }}
           apiSecret: ${{ secrets.FIREFOX_API_SECRET }}
           timeout: 900000
@@ -70,5 +101,5 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: published-v${{ steps.semver.outputs.version }}
+          name: published-firefox-v${{ steps.semver.outputs.version }}
           path: dist/packed/*
