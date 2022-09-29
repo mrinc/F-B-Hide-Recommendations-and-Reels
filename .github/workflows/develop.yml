@@ -1,12 +1,12 @@
-name: Build and Publish
+name: Build and Test
 
 on:
   push:
     branches:
-      - "master"
+      - "develop"
 
 jobs:
-  build-publish-chrome:
+  build-test-chrome:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -40,7 +40,7 @@ jobs:
           client-id: ${{ secrets.CHROME_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
           refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          #publish-target: trustedTesters
+          publish-target: trustedTesters
           publish: true
 
       - uses: actions/upload-artifact@v2
@@ -48,7 +48,7 @@ jobs:
           name: published-chrome-v${{ steps.semver.outputs.version }}
           path: dist/packed/*
 
-  build-publish-firefox:
+  build-test-firefox:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -89,7 +89,7 @@ jobs:
           cmd: sign
           source: dist/packed/firefox.latest.unsigned.xpi
           artifacts: dist/packed/
-          channel: listed
+          channel: unlisted
           apiKey: ${{ secrets.FIREFOX_API_KEY }}
           apiSecret: ${{ secrets.FIREFOX_API_SECRET }}
           timeout: 900000
