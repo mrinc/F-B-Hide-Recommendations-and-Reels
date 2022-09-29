@@ -62,12 +62,11 @@ jobs:
           apiSecret: ${{ secrets.FIREFOX_API_SECRET }}
           timeout: 900000
 
-      - run: bash rm dist/packed/firefox.latest.unsigned.xpi
-      
-      - run: bash mv ${{ steps.firefoxrelease.outputs.target }} firefox.v${{ steps.semver.outputs.version }}.signed.xpi
-        working-directory: "dist/packed/"
+      - run: rm dist/packed/firefox.latest.unsigned.xpi
 
-      - run: bash cp dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi dist/packed/firefox.latest.signed.xpi
+      - run: mv ${{ steps.firefoxrelease.outputs.target }} dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi
+
+      - run: cp dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi dist/packed/firefox.latest.signed.xpi
 
       - uses: actions/upload-artifact@v2
         with:
