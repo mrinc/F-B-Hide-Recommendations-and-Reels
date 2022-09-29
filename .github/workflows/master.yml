@@ -42,21 +42,33 @@ jobs:
       #    refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
       #    publish-target: trustedTesters
 
-      - name: Upload & release Firefox Extension
+      - name: Build Firefox Extension
         uses: kewisch/action-web-ext@v1
         with:
-          cmd: sign
+          cmd: build
           source: dist/unpacked/firefox
+          artifacts: dist/packed/
+          filename: firefox.latest.unsigned.xpi
+
+      - name: Upload & release Firefox Extension
+        uses: kewisch/action-web-ext@v1
+        id: firefoxrelease
+        with:
+          cmd: sign
+          source: dist/unpacked/firefox/firefox.latest.unsigned.xpi
           artifacts: dist/packed/
           channel: unlisted
           apiKey: ${{ secrets.FIREFOX_API_KEY }}
           apiSecret: ${{ secrets.FIREFOX_API_SECRET }}
           timeout: 900000
 
-      - run: bash mv dist/packed/*.xpi dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi
+      - run: bash mv ${{ steps.firefoxrelease.outputs.target }} firefox.v${{ steps.semver.outputs.version }}.signed.xpi
+        working-directory: "dist/packed/"
+
       - run: bash cp dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi dist/packed/firefox.latest.signed.xpi
+      - run: bash rm dist/packed/firefox.latest.unsigned.xpi
 
       - uses: actions/upload-artifact@v2
         with:
-          name: published-package
+          name: published-v${{ steps.semver.outputs.version }}
           path: dist/packed/*
