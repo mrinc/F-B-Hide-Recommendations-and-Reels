@@ -55,18 +55,19 @@ jobs:
         id: firefoxrelease
         with:
           cmd: sign
-          source: dist/unpacked/firefox/firefox.latest.unsigned.xpi
+          source: dist/packed/firefox.latest.unsigned.xpi
           artifacts: dist/packed/
           channel: unlisted
           apiKey: ${{ secrets.FIREFOX_API_KEY }}
           apiSecret: ${{ secrets.FIREFOX_API_SECRET }}
           timeout: 900000
 
+      - run: bash rm dist/packed/firefox.latest.unsigned.xpi
+      
       - run: bash mv ${{ steps.firefoxrelease.outputs.target }} firefox.v${{ steps.semver.outputs.version }}.signed.xpi
         working-directory: "dist/packed/"
 
       - run: bash cp dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi dist/packed/firefox.latest.signed.xpi
-      - run: bash rm dist/packed/firefox.latest.unsigned.xpi
 
       - uses: actions/upload-artifact@v2
         with:
