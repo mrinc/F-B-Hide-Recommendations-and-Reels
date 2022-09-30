@@ -32,6 +32,12 @@ jobs:
       - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
       - run: bash ./build-package.sh chrome
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: chrome-v${{ steps.semver.outputs.version }}
+          path: dist/packed/*
+          if-no-files-found: error
+
       - name: Upload & release Chrome Extension
         uses: mnao305/chrome-extension-upload@3.0.0
         with:
@@ -42,11 +48,6 @@ jobs:
           refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
           #publish-target: trustedTesters
           publish: true
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: published-chrome-v${{ steps.semver.outputs.version }}
-          path: dist/packed/*
 
   build-publish-firefox:
     runs-on: ubuntu-latest
@@ -73,6 +74,12 @@ jobs:
           echo "Setting version too: ${{ steps.semver.outputs.version }}";
       - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
       - run: bash ./build-package.sh firefox
+          
+      - uses: actions/upload-artifact@v2
+        with:
+          name: firefox-v${{ steps.semver.outputs.version }}
+          path: dist/packed/*
+          if-no-files-found: error
 
       - name: Build Firefox Extension
         uses: kewisch/action-web-ext@v1
@@ -102,5 +109,5 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: published-firefox-v${{ steps.semver.outputs.version }}
-          path: dist/packed/*
+          name: firefox-v${{ steps.semver.outputs.version }}-signed
+          path: dist/packed/*.xpi
