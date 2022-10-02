@@ -5,62 +5,89 @@ const contentCleaner = (key, isreRun = false, config) => {
   console.log(
     "contentCleaner:v" + browser.runtime.getManifest().version + " " + key
   );
-  let feed = definedFeedHolder === true ? window.document.getElementsByClassName('defined-feed-holder') : window.document.querySelectorAll('[role="feed"]');
-  if (feed.length !== 1) {
-    console.log("contentCleaner: try main finder");
-    for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-      if (feedHeader.innerText === 'News Feed posts') {
-        console.log("contentCleaner: try main finder - OK");
-        definedFeedHolder = true;
-        feedHeader.parentNode.classList.add('defined-feed-holder');
-        feed = [feedHeader.parentNode];
-        break;
-      }
-    }
-
+  try {
+    let feed =
+      definedFeedHolder === true
+        ? window.document.getElementsByClassName("defined-feed-holder")
+        : window.document.querySelectorAll('[role="feed"]');
     if (feed.length !== 1) {
-      console.log("contentCleaner: ignore");
-      return;
+      console.log("contentCleaner: try main finder");
+      for (let feedHeader of window.document.querySelectorAll(
+        'h3[dir="auto"]'
+      )) {
+        if (feedHeader.innerText === "News Feed posts") {
+          console.log("contentCleaner: try main finder - OK");
+          definedFeedHolder = true;
+          feedHeader.parentNode.classList.add("defined-feed-holder");
+          feed = [feedHeader.parentNode];
+          break;
+        }
+      }
+
+      if (feed.length !== 1) {
+        console.log("contentCleaner: ignore");
+        return;
+      }
+    } else {
+      definedFeedHolder = true;
+      feed[0].classList.add("defined-feed-holder");
     }
-  } else {
-    definedFeedHolder = true;
-    feed[0].classList.add('defined-feed-holder');
-  }
-  let result = {
-    total: feed[0].children.length,
-    alreadyRedacted: 0,
-    ignored: 0,
-    opsignored: 0,
-    redacted: {
-      total: 0,
-      reels: 0,
-      ads: 0,
-      suggestions: 0,
-    },
-    monitoring: 0,
-  };
-  for (let elem of feed[0].children) {
-    if (elem.classList.contains("redact-elem")) {
-      result.alreadyRedacted += 1;
-      continue;
-    }
-    if (elem.classList.contains("no-redact-elem")) {
-      result.ignored += 1;
-      continue;
-    }
-    if (elem.innerHTML.indexOf("Reels and short videos") >= 0) {
-      if (config.reels === true) {
-        elem.classList.add("no-redact-elem");
-        result.opsignored += 1;
+    console.log(
+      "contentCleaner:v" +
+        browser.runtime.getManifest().version +
+        " " +
+        key +
+        " -clean"
+    );
+    let result = {
+      total: feed[0].children.length,
+      alreadyRedacted: 0,
+      ignored: 0,
+      opsignored: 0,
+      redacted: {
+        total: 0,
+        reels: 0,
+        ads: 0,
+        suggestions: 0,
+        commentedOn: 0,
+      },
+      monitoring: 0,
+    };
+    for (let elem of feed[0].children) {
+      if (elem.classList.contains("redact-elem")) {
+        result.alreadyRedacted += 1;
         continue;
       }
-      elem.classList.add("redact-elem");
-      elem.classList.add("redact-elem-reels");
-      result.redacted.reels += 1;
-      continue;
-    }
-    if (
-      elem.innerHTML.indexOf("/ads/about/") > 0 /* ||
+      if (elem.classList.contains("no-redact-elem")) {
+        result.ignored += 1;
+        continue;
+      }
+      if (elem.innerHTML.indexOf("Reels and short videos") >= 0) {
+        if (config.reels === true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-reels-redact");
+          result.opsignored += 1;
+          continue;
+        }
+        elem.classList.add("redact-elem");
+        elem.classList.add("redact-elem-reels");
+        result.redacted.reels += 1;
+        continue;
+      }
+      if (elem.innerHTML.indexOf(" commented on a post from ") >= 0) {
+        if (config.commentedOn === true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-commentedOn-redact");
+          result.opsignored += 1;
+          continue;
+        }
+        elem.classList.add("redact-elem");
+        elem.classList.add("redact-elem-commentedOn");
+        result.redacted.commentedOn += 1;
+        continue;
+      }
+      if (
+        elem.innerHTML.indexOf("/ads/about/") > 0 /* ||
       (elem.innerHTML.indexOf(">p</div>") > 0 &&
         elem.innerHTML.indexOf(">S</div>") > 0 &&
         elem.innerHTML.indexOf(">o</div>") > 0 &&
@@ -73,56 +100,61 @@ const contentCleaner = (key, isreRun = false, config) => {
         elem.innerHTML.indexOf('/groups/') < 0 &&
         elem.innerHTML.indexOf('/posts/') < 0
         )*/
-    ) {
-      elem.classList.add("redact-elem");
-      elem.classList.add("redact-elem-ads");
-      result.redacted.ads += 1;
-      continue;
-    }
-    if (elem.innerHTML.indexOf(">Suggested for you<") >= 0) {
-      if (config.suggestions === true) {
-        elem.classList.add("no-redact-elem");
-        result.opsignored += 1;
+      ) {
+        elem.classList.add("redact-elem");
+        elem.classList.add("redact-elem-ads");
+        result.redacted.ads += 1;
         continue;
       }
-      elem.classList.add("redact-elem");
-      elem.classList.add("redact-elem-suggestions");
-      result.redacted.suggestions += 1;
-      continue;
+      if (elem.innerHTML.indexOf(">Suggested for you<") >= 0) {
+        if (config.suggestions === true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-suggestions-redact");
+          result.opsignored += 1;
+          continue;
+        }
+        elem.classList.add("redact-elem");
+        elem.classList.add("redact-elem-suggestions");
+        result.redacted.suggestions += 1;
+        continue;
+      }
+      let contentCounter = `${elem.getAttribute("ccount") || ""}`;
+      if (contentCounter == "") contentCounter = "0";
+      contentCounter = Number.parseInt(contentCounter);
+      contentCounter++;
+      elem.setAttribute("ccount", contentCounter);
+      result.monitoring += 1;
+      if (contentCounter >= 20) elem.classList.add("no-redact-elem");
     }
-    let contentCounter = `${elem.getAttribute("ccount") || ""}`;
-    if (contentCounter == "") contentCounter = "0";
-    contentCounter = Number.parseInt(contentCounter);
-    contentCounter++;
-    elem.setAttribute("ccount", contentCounter);
-    result.monitoring += 1;
-    if (contentCounter >= 20) elem.classList.add("no-redact-elem");
-  }
-  result.redacted.total =
-    result.redacted.reels +
-    result.redacted.ads +
-    result.redacted.suggestions +
-    result.alreadyRedacted;
-  console.log(
-    `contentCleaner: ` +
-      `[opsIgnored: ${result.opsignored}/${result.total}] ` +
-      `[alreadyRedacted: ${result.alreadyRedacted}/${result.total}] ` +
-      `[ignored: ${result.ignored}/${result.total}] ` +
-      `[monitoring: ${result.monitoring}/${result.total}] ` +
-      `[redacted(reels,ads,suggestions): ${result.redacted.reels},${result.redacted.ads},${result.redacted.suggestions}/${result.total}] ` +
-      `[cleaned(redacted,ignored,monitoring): ${result.redacted.total},${
-        result.ignored
-      },${result.monitoring}=${
-        result.redacted.total + result.ignored + result.monitoring
-      }/${result.total}] `
-  );
+    result.redacted.total =
+      result.redacted.reels +
+      result.redacted.ads +
+      result.redacted.suggestions +
+      result.redacted.commentedOn +
+      result.alreadyRedacted;
+    console.log(
+      `contentCleaner: ` +
+        `[opsIgnored: ${result.opsignored}/${result.total}] ` +
+        `[alreadyRedacted: ${result.alreadyRedacted}/${result.total}] ` +
+        `[ignored: ${result.ignored}/${result.total}] ` +
+        `[monitoring: ${result.monitoring}/${result.total}] ` +
+        `[redacted(reels,ads,suggestions,commentedOn): ${result.redacted.reels},${result.redacted.ads},${result.redacted.suggestions},${result.redacted.commentedOn}/${result.total}] ` +
+        `[cleaned(redacted,ignored,monitoring): ${result.redacted.total},${
+          result.ignored
+        },${result.monitoring}=${
+          result.redacted.total + result.ignored + result.monitoring
+        }/${result.total}] `
+    );
 
-  clearTimeout(ccDebounceTimer);
-  if (isreRun) return;
-  ccDebounceTimer = setTimeout(() => {
-    //if (`${lastAction}` != lastActionKey) return;
-    contentCleaner("re-clear:" + key, true, config);
-  }, 2000);
+    clearTimeout(ccDebounceTimer);
+    if (isreRun) return;
+    ccDebounceTimer = setTimeout(() => {
+      //if (`${lastAction}` != lastActionKey) return;
+      contentCleaner("re-clear:" + key, true, config);
+    }, 2000);
+  } catch (xcc) {
+    console.error(xcc);
+  }
 };
 
 document.body.onload = () => {

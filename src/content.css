@@ -33,6 +33,10 @@
   content: "Was an AD before";
 }
 
+.redact-elem.redact-elem-commentedOn::before {
+  content: "Was a post a friend commented on that you do not follow before";
+}
+
 div[aria-label="Stories"] {
   display: none !important;
 }
