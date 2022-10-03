@@ -1,9 +1,9 @@
 // popup.js
 
 for (let elem of document.getElementsByClassName("app_version"))
-  elem.innerText = browser.runtime.getManifest().version;
+  elem.innerText = (chrome || browser).runtime.getManifest().version;
 
-const configElems = ["reels", "suggestions", "commentedOn"];
+const configElems = ["reels", "suggestions", "commentedOn", "peopleMayKnow"];
 
 document.body.onload = () => {
   chrome.storage.sync.get("data", (items) => {

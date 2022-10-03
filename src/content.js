@@ -3,13 +3,16 @@ let definedFeedHolder = false;
 const contentCleaner = (key, isreRun = false, config) => {
   if (window.pausecc === true) return;
   console.log(
-    "contentCleaner:v" + browser.runtime.getManifest().version + " " + key
+    "contentCleaner:v" +
+      (chrome || browser).runtime.getManifest().version +
+      " " +
+      key
   );
   try {
     let feed =
       definedFeedHolder === true
         ? window.document.getElementsByClassName("defined-feed-holder")
-        : window.document.querySelectorAll('[role="feed"]');
+        : []; //window.document.querySelectorAll('[role="feed"]');
     if (feed.length !== 1) {
       console.log("contentCleaner: try main finder");
       for (let feedHeader of window.document.querySelectorAll(
@@ -34,7 +37,7 @@ const contentCleaner = (key, isreRun = false, config) => {
     }
     console.log(
       "contentCleaner:v" +
-        browser.runtime.getManifest().version +
+        (chrome || browser).runtime.getManifest().version +
         " " +
         key +
         " -clean"
@@ -50,6 +53,7 @@ const contentCleaner = (key, isreRun = false, config) => {
         ads: 0,
         suggestions: 0,
         commentedOn: 0,
+        peopleMayKnow: 0
       },
       monitoring: 0,
     };
@@ -84,6 +88,18 @@ const contentCleaner = (key, isreRun = false, config) => {
         elem.classList.add("redact-elem");
         elem.classList.add("redact-elem-commentedOn");
         result.redacted.commentedOn += 1;
+        continue;
+      }
+      if (elem.innerHTML.indexOf("People you may know") >= 0) {
+        if (config.peopleMayKnow === true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-peopleMayKnow-redact");
+          result.opsignored += 1;
+          continue;
+        }
+        elem.classList.add("redact-elem");
+        elem.classList.add("redact-elem-peopleMayKnow");
+        result.redacted.peopleMayKnow += 1;
         continue;
       }
       if (
@@ -131,6 +147,7 @@ const contentCleaner = (key, isreRun = false, config) => {
       result.redacted.ads +
       result.redacted.suggestions +
       result.redacted.commentedOn +
+      result.redacted.peopleMayKnow +
       result.alreadyRedacted;
     console.log(
       `contentCleaner: ` +
@@ -138,7 +155,7 @@ const contentCleaner = (key, isreRun = false, config) => {
         `[alreadyRedacted: ${result.alreadyRedacted}/${result.total}] ` +
         `[ignored: ${result.ignored}/${result.total}] ` +
         `[monitoring: ${result.monitoring}/${result.total}] ` +
-        `[redacted(reels,ads,suggestions,commentedOn): ${result.redacted.reels},${result.redacted.ads},${result.redacted.suggestions},${result.redacted.commentedOn}/${result.total}] ` +
+        `[redacted(reels,ads,suggestions,commentedOn,peopleMayKnow): ${result.redacted.reels},${result.redacted.ads},${result.redacted.suggestions},${result.redacted.commentedOn},${result.redacted.peopleMayKnow}/${result.total}] ` +
         `[cleaned(redacted,ignored,monitoring): ${result.redacted.total},${
           result.ignored
         },${result.monitoring}=${
