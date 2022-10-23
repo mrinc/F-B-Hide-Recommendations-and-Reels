@@ -1,3 +1,18 @@
+const langs = {
+  en: {
+    newsFeedPosts: "News Feed posts",
+    reelsBlock: "Reels and short videos",
+    commentedOn: " commented on a post from ",
+    peopleKnow: "People you may know",
+    suggested: ">Suggested for you<"
+  }
+};
+
+if (langs[document.documentElement.lang] === undefined) {
+  // unknown lang
+
+}
+
 let ccDebounceTimer = null;
 let definedFeedHolder = false;
 const contentCleaner = (key, isreRun = false, config) => {
@@ -15,7 +30,7 @@ const contentCleaner = (key, isreRun = false, config) => {
       for (let feedHeader of window.document.querySelectorAll(
         'h3[dir="auto"]'
       )) {
-        if (feedHeader.innerText === "News Feed posts") {
+        if (feedHeader.innerText === langs[document.documentElement.lang].newsFeedPosts) {
           console.log("contentCleaner: try main finder - 1");
           if (feedHeader.parentNode.children.length > 3) {
             definedFeedHolder = true;
@@ -30,7 +45,7 @@ const contentCleaner = (key, isreRun = false, config) => {
       for (let feedHeader of window.document.querySelectorAll(
         'h3[dir="auto"]'
       )) {
-        if (feedHeader.innerText === "News Feed posts") {
+        if (feedHeader.innerText === langs[document.documentElement.lang].newsFeedPosts) {
           console.log("contentCleaner: try main finder - 2");
           if (feedHeader.parentNode.children.length === 2) {
             if (
@@ -85,7 +100,7 @@ const contentCleaner = (key, isreRun = false, config) => {
         result.ignored += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf("Reels and short videos") >= 0) {
+      if (elem.innerHTML.indexOf(langs[document.documentElement.lang].reelsBlock) >= 0) {
         if (config.reels === true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-reels-redact");
@@ -97,7 +112,7 @@ const contentCleaner = (key, isreRun = false, config) => {
         result.redacted.reels += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(" commented on a post from ") >= 0) {
+      if (elem.innerHTML.indexOf(langs[document.documentElement.lang].commentedOn) >= 0) {
         if (config.commentedOn === true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-commentedOn-redact");
@@ -109,7 +124,7 @@ const contentCleaner = (key, isreRun = false, config) => {
         result.redacted.commentedOn += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf("People you may know") >= 0) {
+      if (elem.innerHTML.indexOf(langs[document.documentElement.lang].peopleKnow) >= 0) {
         if (config.peopleMayKnow === true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-peopleMayKnow-redact");
@@ -141,7 +156,7 @@ const contentCleaner = (key, isreRun = false, config) => {
         result.redacted.ads += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(">Suggested for you<") >= 0) {
+      if (elem.innerHTML.indexOf(langs[document.documentElement.lang].suggested) >= 0) {
         if (config.suggestions === true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-suggestions-redact");
