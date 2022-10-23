@@ -9,31 +9,50 @@ const contentCleaner = (key, isreRun = false, config) => {
       key
   );
   try {
-    let feed =
-      definedFeedHolder === true
-        ? window.document.getElementsByClassName("defined-feed-holder")
-        : []; //window.document.querySelectorAll('[role="feed"]');
-    if (feed.length !== 1) {
-      console.log("contentCleaner: try main finder");
+    let feed = null;
+    if (!definedFeedHolder) {
+      //try method 1
       for (let feedHeader of window.document.querySelectorAll(
         'h3[dir="auto"]'
       )) {
         if (feedHeader.innerText === "News Feed posts") {
-          console.log("contentCleaner: try main finder - OK");
-          definedFeedHolder = true;
-          feedHeader.parentNode.classList.add("defined-feed-holder");
-          feed = [feedHeader.parentNode];
+          console.log("contentCleaner: try main finder - 1");
+          if (feedHeader.parentNode.children.length > 3) {
+            definedFeedHolder = true;
+            feedHeader.parentNode.classList.add("defined-feed-holder");
+          }
           break;
         }
       }
-
-      if (feed.length !== 1) {
-        console.log("contentCleaner: ignore");
-        return;
+    }
+    if (!definedFeedHolder) {
+      //try method 2
+      for (let feedHeader of window.document.querySelectorAll(
+        'h3[dir="auto"]'
+      )) {
+        if (feedHeader.innerText === "News Feed posts") {
+          console.log("contentCleaner: try main finder - 2");
+          if (feedHeader.parentNode.children.length === 2) {
+            if (
+              feedHeader.parentNode.children[0].tagName !== "H3" ||
+              feedHeader.parentNode.children[1].tagName !== "DIV"
+            )
+              continue;
+            definedFeedHolder = true;
+            feedHeader.parentNode.children[1].classList.add(
+              "defined-feed-holder"
+            );
+          }
+          break;
+        }
       }
-    } else {
-      definedFeedHolder = true;
-      feed[0].classList.add("defined-feed-holder");
+    }
+    if (definedFeedHolder) {
+      feed = window.document.getElementsByClassName("defined-feed-holder")[0];
+    }
+
+    if (feed == null) {
+      return console.warn("cannot find facebook feed");
     }
     console.log(
       "contentCleaner:v" +
@@ -43,7 +62,7 @@ const contentCleaner = (key, isreRun = false, config) => {
         " -clean"
     );
     let result = {
-      total: feed[0].children.length,
+      total: feed.children.length,
       alreadyRedacted: 0,
       ignored: 0,
       opsignored: 0,
@@ -53,11 +72,11 @@ const contentCleaner = (key, isreRun = false, config) => {
         ads: 0,
         suggestions: 0,
         commentedOn: 0,
-        peopleMayKnow: 0
+        peopleMayKnow: 0,
       },
       monitoring: 0,
     };
-    for (let elem of feed[0].children) {
+    for (let elem of feed.children) {
       if (elem.classList.contains("redact-elem")) {
         result.alreadyRedacted += 1;
         continue;
