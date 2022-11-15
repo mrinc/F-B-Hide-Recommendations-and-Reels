@@ -19,7 +19,7 @@ let ccDebounceTimer = null;
 let definedFeedHolder = false;
 const contentCleaner = (key, isreRun = false, config) => {
   if (window.pausecc === true) return;
-  if (window.location.pathname !== '/') {
+  if (window.location.pathname !== "/") {
     console.log(
       "contentCleaner:v" +
         (chrome || browser).runtime.getManifest().version +
@@ -231,24 +231,39 @@ const contentCleaner = (key, isreRun = false, config) => {
     );
 
     clearTimeout(ccDebounceTimer);
+    if (document.getElementById("stories-container") === null) {
+      let storiesDoc = document.querySelectorAll('div[aria-label="Stories"]');
+      if (storiesDoc.length > 0) {
+        let hiracDiv = storiesDoc[0].parentElement;
+        let max = 30;
+        while (hiracDiv.classList.length > 0) {
+          hiracDiv = hiracDiv.parentElement;
+          max = max - 1;
+          if (max <= 0) return;
+        }
+        hiracDiv.setAttribute("id", "stories-container");
+      }
+      if (config.stories !== true) {
+        let storiesDoc = document.getElementById("stories-container");
+        for (let childH of storiesDoc.children) {
+          if (childH.getAttribute("id") === "fbcont-banner") continue;
+          childH.classList.add("stories");
+        }
+      }
+      if (document.getElementById("fbcont-banner") === null) {
+        document.getElementById("stories-container").innerHTML =
+          '<div id="fbcont-banner" class="redact-elem redact-elem-fbhaar" fbver="' +
+          (chrome || browser).runtime.getManifest().version +
+          '" fbtxt="Facebook Hide Recommendations and Reels v' +
+          (chrome || browser).runtime.getManifest().version +
+          '"></div>' + document.getElementById("stories-container").innerHTML;
+      }
+    }
     if (isreRun) return;
     ccDebounceTimer = setTimeout(() => {
       //if (`${lastAction}` != lastActionKey) return;
       contentCleaner("re-clear:" + key, true, config);
     }, 2000);
-    let storiesDoc = document.querySelectorAll('div[aria-label="Stories"]');
-    if (storiesDoc.length > 0) {
-      let hiracDiv = storiesDoc[0].parentElement;
-      let max = 30;
-      while (hiracDiv.classList.length > 0) {
-        hiracDiv = hiracDiv.parentElement;
-        max = max - 1;
-        if (max <= 0) return;
-      }
-      hiracDiv.classList.add("stories-container");
-      if (config.stories === true)
-        for (let childH of hiracDiv.children) childH.classList.add("stories");
-    }
   } catch (xcc) {
     console.error(xcc);
   }
