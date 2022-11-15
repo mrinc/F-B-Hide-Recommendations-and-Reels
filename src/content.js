@@ -231,6 +231,19 @@ const contentCleaner = (key, isreRun = false, config) => {
       //if (`${lastAction}` != lastActionKey) return;
       contentCleaner("re-clear:" + key, true, config);
     }, 2000);
+    let storiesDoc = document.querySelectorAll('div[aria-label="Stories"]');
+    if (storiesDoc.length > 0) {
+      let hiracDiv = storiesDoc[0].parentElement;
+      let max = 30;
+      while (hiracDiv.classList.length > 0) {
+        hiracDiv = hiracDiv.parentElement;
+        max = max - 1;
+        if (max <= 0) return;
+      }
+      hiracDiv.classList.add("stories-container");
+      if (config.stories === true)
+        for (let childH of hiracDiv.children) childH.classList.add("stories");
+    }
   } catch (xcc) {
     console.error(xcc);
   }

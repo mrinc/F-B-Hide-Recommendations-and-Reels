@@ -3,7 +3,7 @@
 for (let elem of document.getElementsByClassName("app_version"))
   elem.innerText = (chrome || browser).runtime.getManifest().version;
 
-const configElems = ["reels", "suggestions", "commentedOn", "peopleMayKnow"];
+const configElems = ["reels", "suggestions", "commentedOn", "peopleMayKnow", "stories"];
 
 document.body.onload = () => {
   chrome.storage.sync.get("data", (items) => {
