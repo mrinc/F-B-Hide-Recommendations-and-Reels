@@ -25,10 +25,6 @@
   content: "Facebook Hide Recommendations and Reels";
 }
 
-/*.redact-elem.redact-elem-fbhaar[fbver]::before {
-  content: "Facebook Hide Recommendations and Reels v"+attr(fbver);
-}*/
-
 .redact-elem.redact-elem-fbhaar[fbtxt]::before {
   content: attr(fbtxt);
 }

@@ -256,7 +256,8 @@ const contentCleaner = (key, isreRun = false, config) => {
           (chrome || browser).runtime.getManifest().version +
           '" fbtxt="Facebook Hide Recommendations and Reels v' +
           (chrome || browser).runtime.getManifest().version +
-          '"></div>' + document.getElementById("stories-container").innerHTML;
+          '"></div>' +
+          document.getElementById("stories-container").innerHTML;
       }
     }
     if (isreRun) return;
