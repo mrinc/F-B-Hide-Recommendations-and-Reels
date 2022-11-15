@@ -15,14 +15,19 @@ const langs = {
   },
 };
 
-if (langs[document.documentElement.lang] === undefined) {
-  // unknown lang
-}
-
 let ccDebounceTimer = null;
 let definedFeedHolder = false;
 const contentCleaner = (key, isreRun = false, config) => {
   if (window.pausecc === true) return;
+  if (window.location.pathname !== '/') {
+    console.log(
+      "contentCleaner:v" +
+        (chrome || browser).runtime.getManifest().version +
+        " - paused as not on home page"
+    );
+    definedFeedHolder = false;
+    return;
+  }
   console.log(
     "contentCleaner:v" +
       (chrome || browser).runtime.getManifest().version +
@@ -249,53 +254,57 @@ const contentCleaner = (key, isreRun = false, config) => {
   }
 };
 
-document.body.onload = () => {
-  chrome.storage.sync.get("data", (items) => {
-    let config = (items || {}).data || {};
-    console.log("Known CC Config", config);
-    let contentClearTimer = setInterval(
-      () => contentCleaner("timer", false, config),
-      60000
-    );
-    contentCleaner(undefined, false, config);
-
-    let lastAction = 0;
-    let debounceTimer = null;
-    document.addEventListener("scroll", function (e) {
-      let now = new Date().getTime();
-
-      if (now - lastAction > 1000) {
-        clearTimeout(debounceTimer);
-        contentCleaner("force", false, config);
-        lastAction = now;
-        return;
-      }
-      if (now - lastAction > 250) {
-        clearTimeout(debounceTimer);
-        //let lastActionKey = `${lastAction}`;
-        debounceTimer = setTimeout(() => {
-          //if (`${lastAction}` != lastActionKey) return;
-          contentCleaner("scroll", false, config);
-          lastAction = now;
-        }, 500);
-      }
-    });
-
-    window.addEventListener("blur", () => {
-      contentCleaner("blur", false, config);
-      clearInterval(contentClearTimer);
-      contentClearTimer = setInterval(
+if (langs[document.documentElement.lang] === undefined) {
+  // unknown lang
+  console.warn("Unknown lang!");
+} else
+  document.body.onload = () => {
+    chrome.storage.sync.get("data", (items) => {
+      let config = (items || {}).data || {};
+      console.log("Known CC Config", config);
+      let contentClearTimer = setInterval(
         () => contentCleaner("timer", false, config),
         60000
       );
+      contentCleaner(undefined, false, config);
+
+      let lastAction = 0;
+      let debounceTimer = null;
+      document.addEventListener("scroll", function (e) {
+        let now = new Date().getTime();
+
+        if (now - lastAction > 1000) {
+          clearTimeout(debounceTimer);
+          contentCleaner("force", false, config);
+          lastAction = now;
+          return;
+        }
+        if (now - lastAction > 250) {
+          clearTimeout(debounceTimer);
+          //let lastActionKey = `${lastAction}`;
+          debounceTimer = setTimeout(() => {
+            //if (`${lastAction}` != lastActionKey) return;
+            contentCleaner("scroll", false, config);
+            lastAction = now;
+          }, 500);
+        }
+      });
+
+      window.addEventListener("blur", () => {
+        contentCleaner("blur", false, config);
+        clearInterval(contentClearTimer);
+        contentClearTimer = setInterval(
+          () => contentCleaner("timer", false, config),
+          60000
+        );
+      });
+      window.addEventListener("focus", () => {
+        contentCleaner("focus", false, config);
+        clearInterval(contentClearTimer);
+        contentClearTimer = setInterval(
+          () => contentCleaner("timer", false, config),
+          10000
+        );
+      });
     });
-    window.addEventListener("focus", () => {
-      contentCleaner("focus", false, config);
-      clearInterval(contentClearTimer);
-      contentClearTimer = setInterval(
-        () => contentCleaner("timer", false, config),
-        10000
-      );
-    });
-  });
-};
+  };
