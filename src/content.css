@@ -41,6 +41,9 @@
   content: "Was a post a friend commented on that you do not follow before";
 }
 
-div[aria-label="Stories"] {
+/*div[aria-label="Stories"] {
+  display: none !important;
+}*/
+div.stories-container > div.stories {
   display: none !important;
 }
