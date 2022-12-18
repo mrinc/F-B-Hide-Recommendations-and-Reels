@@ -11,7 +11,7 @@ const langs = {
     reelsBlock: "Rolki i krótkie filmy",
     commentedOn: " skomentował post z ",
     peopleKnow: "Ludzie których możesz znać",
-    suggested: "Proponowana dla Ciebie",
+    suggested: ">Proponowana dla Ciebie<",
   },
 };
 
