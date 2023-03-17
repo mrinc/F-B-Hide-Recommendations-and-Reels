@@ -21,6 +21,14 @@
   background: var(--surface-background);
 }
 
+.redact-elem.redact-elem-fbhaar::before {
+  content: "Facebook Hide Recommendations and Reels";
+}
+
+.redact-elem.redact-elem-fbhaar[fbtxt]::before {
+  content: attr(fbtxt);
+}
+
 .redact-elem.redact-elem-suggestions::before {
   content: "Was a suggestion before";
 }
@@ -33,6 +41,17 @@
   content: "Was an AD before";
 }
 
-div[aria-label="Stories"] {
+.redact-elem.redact-elem-peopleMayKnow::before {
+  content: "Was friend recommendations before";
+}
+
+.redact-elem.redact-elem-commentedOn::before {
+  content: "Was a post a friend commented on that you do not follow before";
+}
+
+/*div[aria-label="Stories"] {
+  display: none !important;
+}*/
+#stories-container>div.stories {
   display: none !important;
 }
