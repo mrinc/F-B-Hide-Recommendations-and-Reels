@@ -275,9 +275,13 @@ if (langs[document.documentElement.lang] === undefined) {
   console.warn("Unknown lang!");
 } else
   document.body.onload = () => {
-    chrome.storage.sync.get("data", (items) => {
+    chrome.storage.sync.get("data", async (items) => {
       let config = (items || {}).data || {};
       console.log("Known CC Config", config);
+      if (config.needsDelay === true) {
+        console.log("Delaying CC by 5s as per https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/15");
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
       let contentClearTimer = setInterval(
         () => contentCleaner("timer", false, config),
         60000
