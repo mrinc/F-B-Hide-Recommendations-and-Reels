@@ -19,6 +19,18 @@ if [ "$1" = "chrome" ] || [ -z "$1" ]; then
   zip "dist/packed/chrome.v${PKVERSION}.zip" -j ./dist/unpacked/chrome/*
 fi
 
+if [ "$1" = "edge" ] || [ -z "$1" ]; then
+  echo "Edge Version is: ${PKVERSION}"
+  mkdir dist/unpacked/edge
+  cp -Rv ./LICENSE ./dist/unpacked/edge/
+  cp -Rv ./README.md ./dist/unpacked/edge/
+  cp -Rv ./src/* ./dist/unpacked/edge/
+  cp -Rv ./edge/* ./dist/unpacked/edge/
+  jq -s '.[0] * .[1]' ./src/manifest.json ./edge/manifest.json >./dist/unpacked/edge/manifest.json
+  zip "dist/packed/edge.latest.zip" -j ./dist/unpacked/edge/*
+  zip "dist/packed/edge.v${PKVERSION}.zip" -j ./dist/unpacked/edge/*
+fi
+
 if [ "$1" = "firefox" ] || [ -z "$1" ]; then
   echo "Firefox Version is: ${PKVERSION}"
   mkdir dist/unpacked/firefox
