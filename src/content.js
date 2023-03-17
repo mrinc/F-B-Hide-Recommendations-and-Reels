@@ -13,6 +13,13 @@ const langs = {
     peopleKnow: "Ludzie których możesz znać",
     suggested: ">Proponowana dla Ciebie<",
   },
+  fr: {
+    newsFeedPosts: "Messages du fil d'actualité",
+    reelsBlock: "Reels et courtes vidéos",
+    commentedOn: " a commenté un message de ",
+    peopleKnow: "Les gens que vous connaissez peut-être",
+    suggested: ">Suggéré pour vous<",
+  },
 };
 
 let ccDebounceTimer = null;
