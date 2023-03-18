@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": ["ES5", "ES6", "ES2016", "dom", "es2016", "dom.iterable"],
+    "target": "ES2016",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "sourceMap": false,
+    "outDir": "./lib/content",
+    "removeComments": true,
+    "inlineSourceMap": false,
+    "inlineSources": false,
+    "preserveValueImports": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/@types/*"]
+    },
+  },
+  "include": [
+    "src/content/*.ts"
+  ],
+  "exclude": [
+    "node_modules/**"
+  ]
+}

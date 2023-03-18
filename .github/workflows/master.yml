@@ -6,12 +6,26 @@ on:
       - "master"
 
 jobs:
-  build-publish-chrome:
+  build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
 
       - name: semver
         id: semver
@@ -29,14 +43,50 @@ jobs:
       - name: output version
         run: |
           echo "Setting version too: ${{ steps.semver.outputs.version }}";
-      - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
-      - run: bash ./build-package.sh chrome
+      - run: jq '.version = "${{ steps.semver.outputs.version }}"' lib/manifest.json > ./manifest.json && mv ./manifest.json lib/manifest.json
+      - run: echo "version=${{ steps.semver.outputs.version }} >> $GITHUB_OUTPUT"
+        id: version
+
+      - run: bash ./build-package.sh
 
       - uses: actions/upload-artifact@v2
         with:
-          name: chrome-v${{ steps.semver.outputs.version }}
+          name: v${{ steps.semver.outputs.version }}
           path: dist/packed/*
           if-no-files-found: error
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: chrome-v${{ steps.semver.outputs.version }}
+          path: dist/packed/chrome.v${{ steps.semver.outputs.version }}.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v3
+        with:
+          name: firefox-v${{ steps.semver.outputs.version }}
+          path: dist/packed/firefox.v${{ steps.semver.outputs.version }}.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v3
+        with:
+          name: edge-v${{ steps.semver.outputs.version }}
+          path: dist/packed/edge.v${{ steps.semver.outputs.version }}.zip
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
+          if-no-files-found: error
+          retention-days: 5
+
+  publish-chrome:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download dists
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
 
       - name: Upload & release Chrome Extension
         uses: mnao305/chrome-extension-upload@3.0.0
@@ -49,37 +99,14 @@ jobs:
           #publish-target: trustedTesters
           publish: true
 
-  build-publish-firefox:
+  publish-firefox:
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Download dists
+        uses: actions/download-artifact@v3
         with:
-          fetch-depth: 0
-
-      - name: semver
-        id: semver
-        uses: paulhatch/semantic-version@v4.0.3
-        with:
-          tag_prefix: "v"
-          branch: master
-          major_pattern: "(MAJOR)"
-          minor_pattern: "(MINOR)"
-          format: "${major}.${minor}.${patch}"
-          change_path: "./"
-          bump_each_commit: true
-          namespace: ""
-
-      - name: output version
-        run: |
-          echo "Setting version too: ${{ steps.semver.outputs.version }}";
-      - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
-      - run: bash ./build-package.sh firefox
-          
-      - uses: actions/upload-artifact@v2
-        with:
-          name: firefox-v${{ steps.semver.outputs.version }}
-          path: dist/packed/*
-          if-no-files-found: error
+          name: dist
 
       - name: Build Firefox Extension
         uses: kewisch/action-web-ext@v1
@@ -103,11 +130,11 @@ jobs:
 
       - run: rm dist/packed/firefox.latest.unsigned.xpi
 
-      - run: mv ${{ steps.firefoxrelease.outputs.target }} dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi
+      - run: mv ${{ steps.firefoxrelease.outputs.target }} dist/packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi
 
-      - run: cp dist/packed/firefox.v${{ steps.semver.outputs.version }}.signed.xpi dist/packed/firefox.latest.signed.xpi
+      - run: cp dist/packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi dist/packed/firefox.latest.signed.xpi
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
-          name: firefox-v${{ steps.semver.outputs.version }}-signed
-          path: dist/packed/*.xpi
+          name: firefox-v${{ needs.build.outputs.version }}-signed
+          path: dist/packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi

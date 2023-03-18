@@ -1,0 +1,32 @@
+{
+  "name": "chrome-facebook-hide-ads-and-reels",
+  "version": "1.0.0",
+  "description": "This extension looks for certain keys in Facebooks feed and hides elements that contain `Reels and short videos` and `Suggested for you`.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues"
+  },
+  "homepage": "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels#readme",
+  "dependencies": {
+    "@types/webextension-polyfill": "^0.10.0"
+  },
+  "devDependencies": {
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.2",
+    "webpack": "^5.76.2",
+    "webpack-cli": "^5.0.1"
+  }
+}

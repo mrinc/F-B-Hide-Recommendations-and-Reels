@@ -1,28 +1,15 @@
-const langs = {
-  en: {
-    newsFeedPosts: "News Feed posts",
-    reelsBlock: "Reels and short videos",
-    commentedOn: " commented on a post from ",
-    peopleKnow: "People you may know",
-    suggested: ">Suggested for you<",
-  },
-  pl: {
-    newsFeedPosts: "Posty na kanale aktualności",
-    reelsBlock: "Rolki i krótkie filmy",
-    commentedOn: " skomentował post z ",
-    peopleKnow: "Ludzie których możesz znać",
-    suggested: ">Proponowana dla Ciebie<",
-  },
-  fr: {
-    newsFeedPosts: "Messages du fil d'actualité",
-    reelsBlock: "Reels et courtes vidéos",
-    commentedOn: " a commenté un message de ",
-    peopleKnow: "Les gens que vous connaissez peut-être",
-    suggested: ">Suggéré pour vous<",
-  },
-};
+import type { Browser } from "webextension-polyfill";
+import { langs } from "./langs";
+declare let chrome: Browser;
+declare let browser: Browser;
+interface MWindow extends Window {
+  pausecc?: boolean;
+}
+declare let window: MWindow;
 
-let ccDebounceTimer = null;
+const corb = chrome || browser;
+
+let ccDebounceTimer: NodeJS.Timeout | null = null;
 let definedFeedHolder = false;
 const contentCleaner = (key, isreRun = false, config) => {
   if (window.pausecc === true) return;
@@ -42,20 +29,22 @@ const contentCleaner = (key, isreRun = false, config) => {
       key
   );
   try {
-    let feed = null;
+    let feed: Element | null = null;
     if (!definedFeedHolder) {
       //try method 1
       for (let feedHeader of window.document.querySelectorAll(
         'h3[dir="auto"]'
       )) {
         if (
-          feedHeader.innerText ===
+          feedHeader.innerHTML ===
           langs[document.documentElement.lang].newsFeedPosts
         ) {
           console.log("contentCleaner: try main finder - 1");
-          if (feedHeader.parentNode.children.length > 3) {
+          if (feedHeader.parentNode!.children.length > 3) {
             definedFeedHolder = true;
-            feedHeader.parentNode.classList.add("defined-feed-holder");
+            (feedHeader.parentNode as Element).classList.add(
+              "defined-feed-holder"
+            );
           }
           break;
         }
@@ -67,18 +56,18 @@ const contentCleaner = (key, isreRun = false, config) => {
         'h3[dir="auto"]'
       )) {
         if (
-          feedHeader.innerText ===
+          feedHeader.innerHTML ===
           langs[document.documentElement.lang].newsFeedPosts
         ) {
           console.log("contentCleaner: try main finder - 2");
-          if (feedHeader.parentNode.children.length === 2) {
+          if ((feedHeader.parentNode as Element).children.length === 2) {
             if (
-              feedHeader.parentNode.children[0].tagName !== "H3" ||
-              feedHeader.parentNode.children[1].tagName !== "DIV"
+              (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
+              (feedHeader.parentNode as Element).children[1].tagName !== "DIV"
             )
               continue;
             definedFeedHolder = true;
-            feedHeader.parentNode.children[1].classList.add(
+            (feedHeader.parentNode as Element).children[1].classList.add(
               "defined-feed-holder"
             );
           }
@@ -208,11 +197,13 @@ const contentCleaner = (key, isreRun = false, config) => {
         result.redacted.suggestions += 1;
         continue;
       }
-      let contentCounter = `${elem.getAttribute("ccount") || ""}`;
+      let contentCounter: string | number = `${
+        elem.getAttribute("ccount") || ""
+      }`;
       if (contentCounter == "") contentCounter = "0";
       contentCounter = Number.parseInt(contentCounter);
       contentCounter++;
-      elem.setAttribute("ccount", contentCounter);
+      elem.setAttribute("ccount", contentCounter.toString());
       result.monitoring += 1;
       if (contentCounter >= 20) elem.classList.add("no-redact-elem");
     }
@@ -237,34 +228,34 @@ const contentCleaner = (key, isreRun = false, config) => {
         }/${result.total}] `
     );
 
-    clearTimeout(ccDebounceTimer);
+    if (ccDebounceTimer !== null) clearTimeout(ccDebounceTimer);
     if (document.getElementById("stories-container") === null) {
       let storiesDoc = document.querySelectorAll('div[aria-label="Stories"]');
       if (storiesDoc.length > 0) {
-        let hiracDiv = storiesDoc[0].parentElement;
+        let hiracDiv = storiesDoc[0].parentElement!;
         let max = 30;
         while (hiracDiv.classList.length > 0) {
-          hiracDiv = hiracDiv.parentElement;
+          hiracDiv = hiracDiv.parentElement!;
           max = max - 1;
           if (max <= 0) return;
         }
         hiracDiv.setAttribute("id", "stories-container");
       }
       if (config.stories !== true) {
-        let storiesDoc = document.getElementById("stories-container");
+        let storiesDoc = document.getElementById("stories-container")!;
         for (let childH of storiesDoc.children) {
           if (childH.getAttribute("id") === "fbcont-banner") continue;
           childH.classList.add("stories");
         }
       }
       if (document.getElementById("fbcont-banner") === null) {
-        document.getElementById("stories-container").innerHTML =
+        document.getElementById("stories-container")!.innerHTML =
           '<div id="fbcont-banner" class="redact-elem redact-elem-fbhaar" fbver="' +
           (chrome || browser).runtime.getManifest().version +
           '" fbtxt="Facebook Hide Recommendations and Reels v' +
           (chrome || browser).runtime.getManifest().version +
           '"></div>' +
-          document.getElementById("stories-container").innerHTML;
+          document.getElementById("stories-container")!.innerHTML;
       }
     }
     if (isreRun) return;
@@ -282,11 +273,13 @@ if (langs[document.documentElement.lang] === undefined) {
   console.warn("Unknown lang!");
 } else
   document.body.onload = () => {
-    chrome.storage.sync.get("data", async (items) => {
+    chrome.storage.sync.get("data").then(async (items) => {
       let config = (items || {}).data || {};
       console.log("Known CC Config", config);
       if (config.needsDelay === true) {
-        console.log("Delaying CC by 5s as per https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/15");
+        console.log(
+          "Delaying CC by 5s as per https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/15"
+        );
         await new Promise((resolve) => setTimeout(resolve, 5000));
       }
       let contentClearTimer = setInterval(
@@ -296,18 +289,18 @@ if (langs[document.documentElement.lang] === undefined) {
       contentCleaner(undefined, false, config);
 
       let lastAction = 0;
-      let debounceTimer = null;
+      let debounceTimer: NodeJS.Timeout | null = null;
       document.addEventListener("scroll", function (e) {
         let now = new Date().getTime();
 
         if (now - lastAction > 1000) {
-          clearTimeout(debounceTimer);
+          clearTimeout(debounceTimer!);
           contentCleaner("force", false, config);
           lastAction = now;
           return;
         }
         if (now - lastAction > 250) {
-          clearTimeout(debounceTimer);
+          clearTimeout(debounceTimer!);
           //let lastActionKey = `${lastAction}`;
           debounceTimer = setTimeout(() => {
             //if (`${lastAction}` != lastActionKey) return;
