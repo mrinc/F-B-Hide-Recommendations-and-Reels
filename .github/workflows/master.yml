@@ -43,7 +43,7 @@ jobs:
       - name: output version
         run: |
           echo "Setting version too: ${{ steps.semver.outputs.version }}";
-      - run: jq '.version = "${{ steps.semver.outputs.version }}"' lib/manifest.json > ./manifest.json && mv ./manifest.json lib/manifest.json
+      - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
       - run: echo "version=${{ steps.semver.outputs.version }} >> $GITHUB_OUTPUT"
         id: version
 
