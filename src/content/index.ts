@@ -11,7 +11,7 @@ const corb = chrome || browser;
 
 let ccDebounceTimer: NodeJS.Timeout | null = null;
 let definedFeedHolder = false;
-const contentCleaner = (key, isreRun = false, config) => {
+const contentCleaner = (key: string | undefined, isreRun = false, config: any) => {
   if (window.pausecc === true) return;
   if (window.location.pathname !== "/") {
     console.log(
