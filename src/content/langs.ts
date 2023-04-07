@@ -31,4 +31,12 @@ export const langs: Record<string, LangType> = {
     peopleKnow: "Les gens que vous connaissez peut-être",
     suggested: ">Suggéré pour vous<",
   },
+  de: {
+    // German
+    newsFeedPosts: "News Feed Beiträge",
+    reelsBlock: "Reels und Kurzvideos",
+    commentedOn: " kommentierte den Beitrag von ",
+    peopleKnow: "Personen die du vielleicht kennst",
+    suggested: ">Vorschläge für dich<",
+  },
 };
