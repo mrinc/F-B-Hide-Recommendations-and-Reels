@@ -4,6 +4,7 @@ export interface LangType {
   commentedOn: string;
   peopleKnow: string;
   suggested: string;
+  answeredQuestion: string;
 }
 
 export const langs: Record<string, LangType> = {
@@ -14,6 +15,7 @@ export const langs: Record<string, LangType> = {
     commentedOn: " commented on a post from ",
     peopleKnow: "People You May Know",
     suggested: ">Suggested for you<",
+    answeredQuestion: " answered this question."
   },
   pl: {
     // Polish
@@ -22,6 +24,7 @@ export const langs: Record<string, LangType> = {
     commentedOn: " skomentował post z ",
     peopleKnow: "Ludzie których możesz znać",
     suggested: ">Proponowana dla Ciebie<",
+    answeredQuestion: " odpowiedziało na to pytanie"
   },
   fr: {
     // French
@@ -30,6 +33,7 @@ export const langs: Record<string, LangType> = {
     commentedOn: " a commenté un message de ",
     peopleKnow: "Les gens que vous connaissez peut-être",
     suggested: ">Suggéré pour vous<",
+    answeredQuestion: " a répondu à cette question"
   },
   de: {
     // German
@@ -38,6 +42,7 @@ export const langs: Record<string, LangType> = {
     commentedOn: " kommentierte den Beitrag von ",
     peopleKnow: "Personen die du vielleicht kennst",
     suggested: ">Vorschläge für dich<",
+    answeredQuestion: " hat diese Frage beantwortet"
   },
   ja: {
     // Japanese
@@ -46,5 +51,6 @@ export const langs: Record<string, LangType> = {
     commentedOn: " commented on a post from ",
     peopleKnow: "People You May Know",
     suggested: ">Suggested for you<",
+    answeredQuestion: "がこの質問に答えました"
   },
 };

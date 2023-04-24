@@ -100,6 +100,7 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
         ads: 0,
         suggestions: 0,
         commentedOn: 0,
+        answeredQuestion: 0,
         peopleMayKnow: 0,
       },
       monitoring: 0,
@@ -143,6 +144,22 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
         elem.classList.add("redact-elem");
         elem.classList.add("redact-elem-commentedOn");
         result.redacted.commentedOn += 1;
+        continue;
+      }
+      if (
+        elem.innerHTML.indexOf(
+          langs[document.documentElement.lang].answeredQuestion
+        ) >= 0
+      ) {
+        if (config.answeredQuestion === true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-answeredQuestion-redact");
+          result.opsignored += 1;
+          continue;
+        }
+        elem.classList.add("redact-elem");
+        elem.classList.add("redact-elem-answeredQuestion");
+        result.redacted.answeredQuestion += 1;
         continue;
       }
       if (
@@ -212,6 +229,7 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
       result.redacted.ads +
       result.redacted.suggestions +
       result.redacted.commentedOn +
+      result.redacted.answeredQuestion +
       result.redacted.peopleMayKnow +
       result.alreadyRedacted;
     console.log(
@@ -220,7 +238,7 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
         `[alreadyRedacted: ${result.alreadyRedacted}/${result.total}] ` +
         `[ignored: ${result.ignored}/${result.total}] ` +
         `[monitoring: ${result.monitoring}/${result.total}] ` +
-        `[redacted(reels,ads,suggestions,commentedOn,peopleMayKnow): ${result.redacted.reels},${result.redacted.ads},${result.redacted.suggestions},${result.redacted.commentedOn},${result.redacted.peopleMayKnow}/${result.total}] ` +
+        `[redacted(reels,ads,suggestions,commentedOn,answeredQuestion,peopleMayKnow): ${result.redacted.reels},${result.redacted.ads},${result.redacted.suggestions},${result.redacted.commentedOn},${result.redacted.answeredQuestion},${result.redacted.peopleMayKnow}/${result.total}] ` +
         `[cleaned(redacted,ignored,monitoring): ${result.redacted.total},${
           result.ignored
         },${result.monitoring}=${

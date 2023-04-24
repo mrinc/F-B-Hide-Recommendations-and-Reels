@@ -14,6 +14,7 @@ const configElems = [
   "reels",
   "suggestions",
   "commentedOn",
+  "answeredQuestion",
   "peopleMayKnow",
   "stories",
   "needsDelay",

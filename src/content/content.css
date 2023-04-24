@@ -49,6 +49,10 @@
   content: "Was a post a friend commented on that you do not follow before";
 }
 
+.redact-elem.redact-elem-answeredQuestion::before {
+  content: "Was a post a friend answered a question";
+}
+
 /*div[aria-label="Stories"] {
   display: none !important;
 }*/
