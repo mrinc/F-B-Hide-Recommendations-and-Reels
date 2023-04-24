@@ -289,6 +289,7 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
 if (langs[document.documentElement.lang] === undefined) {
   // unknown lang
   console.warn("Unknown lang!");
+  alert('FB Hide Recommendations and Reels: Unknown language! - Please log an issue on our GitHub page to add your language ('+document.documentElement.lang+'). This plugin cannot work without defining a language.');
 } else
   document.body.onload = () => {
     chrome.storage.sync.get("data").then(async (items) => {
