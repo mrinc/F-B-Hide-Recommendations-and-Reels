@@ -52,3 +52,6 @@ if [ "$1" = "firefox" ] || [ -z "$1" ]; then
   zip "dist/packed/firefox.latest.zip" -j ./dist/unpacked/firefox/*
   zip "dist/packed/firefox.v${PKVERSION}.zip" -j ./dist/unpacked/firefox/*
 fi
+
+zip "dist/packed/source.latest.zip" -r ./*
+zip "dist/packed/source.v${PKVERSION}.zip" -r ./*

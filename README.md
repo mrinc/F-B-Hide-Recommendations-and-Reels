@@ -14,3 +14,7 @@ Firefox web store: [https://addons.mozilla.org/en-US/firefox/addon/fb-hide-recom
 Add your language via editing the `langs.ts` file with your language [/src/content/langs.ts](https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/edit/master/src/content/langs.ts)  
 Make a pull request back into master and we'll check and merge it  
 
+# Building package
+
+Run `build-package.sh` and it will compile the extensions into the `dist/packed` dir.  
+Requirements: Typescript, NodeJS  
