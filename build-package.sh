@@ -14,6 +14,7 @@ find ./src/ -name "*.png" -type f -exec cp -rf '{}' ./lib ';'
 find ./src/ -name "*.html" -type f -exec cp -rf '{}' ./lib ';'
 find ./src/ -name "*.json" -type f -exec cp -rf '{}' ./lib ';'
 find ./src/ -name "*.css" -type f -exec cp -rf '{}' ./lib ';'
+find ./src/ -name "*.js" -type f -exec cp -rf '{}' ./lib ';'
 
 PKVERSION=$(cat lib/manifest.json | jq -r '.version')
 

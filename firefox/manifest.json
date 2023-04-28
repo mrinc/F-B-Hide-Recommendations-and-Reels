@@ -5,15 +5,6 @@
     }
   },
   "manifest_version": 2,
-  "background": {
-    "scripts": ["background.js"]
-  },
-  "permissions": [
-    "storage"
-  ],
-  "icons": {
-    "128": "logo.png"
-  },
   "browser_action": {
     "browser_style": true,
     "default_icon": {
@@ -21,12 +12,5 @@
     },
     "default_title": "Options",
     "default_popup": "popup.html"
-  },
-  "content_scripts": [{
-    "matches": [
-      "https://www.facebook.com/*"
-    ],
-    "js": ["content.js"],
-    "css": ["content.css"]
-  }]
+  }
 }
