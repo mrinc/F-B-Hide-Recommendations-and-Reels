@@ -1,5 +1,5 @@
 .redact-elem {
-  height: 45px;
+  height: 50px;
   margin-bottom: 5px;
 }
 
@@ -7,18 +7,29 @@
   display: none !important;
 }
 
+#fbversion-banner {
+  height: 80px;
+}
+#fbversion-banner::before {
+  background: var(--notification-badge);
+}
+
 .redact-elem::before {
-  content: "Was something before";
+  content: "Was something before" attr(redact-comment);
   display: block;
   position: absolute;
-  width: calc(100% - 20px);
+  width: calc(100% - 25px);
   border-radius: var(--card-corner-radius);
-  height: 15px;
+  height: 20px;
   padding: 10px;
-  text-align: center;
-  color: var(--primary-text);
+  padding-left: 15px;
+  text-align: left;
+  font-size: .9375rem;
+  color: var(--secondary-text);
   /*background: var(--web-wash);*/
   background: var(--surface-background);
+  font-family: var(--font-family-default);
+  z-index: 1;
 }
 
 .redact-elem.redact-elem-fbhaar::before {
@@ -28,29 +39,12 @@
 .redact-elem.redact-elem-fbhaar[fbtxt]::before {
   content: attr(fbtxt);
 }
-
-.redact-elem.redact-elem-suggestions::before {
-  content: "Was a suggestion before";
+.redact-elem[ctext]::before {
+  content: attr(ctext);
 }
 
-.redact-elem.redact-elem-reels::before {
-  content: "Was a reel before";
-}
-
-.redact-elem.redact-elem-ads::before {
-  content: "Was an AD before";
-}
-
-.redact-elem.redact-elem-peopleMayKnow::before {
-  content: "Was friend recommendations before";
-}
-
-.redact-elem.redact-elem-commentedOn::before {
-  content: "Was a post a friend commented on that you do not follow before";
-}
-
-.redact-elem.redact-elem-answeredQuestion::before {
-  content: "Was a post a friend answered a question";
+.redact-elem.can-show[ctext]::before {
+  content: '\02C5' ' ' attr(ctext);
 }
 
 /*div[aria-label="Stories"] {
@@ -58,4 +52,16 @@
 }*/
 #stories-container>div.stories {
   display: none !important;
+}
+
+.redact-elem.temp-show {
+  height: auto;
+  margin-bottom: 5px;
+}
+
+.redact-elem.temp-show>div {
+  display: block !important;
+}
+.redact-elem.temp-show[ctext]::before {
+  content: '\02C4' ' ' attr(ctext);
 }

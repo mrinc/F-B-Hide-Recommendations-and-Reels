@@ -1,5 +1,5 @@
 import type { Browser } from "webextension-polyfill";
-import { langs } from "../lib/langs";
+import { langs as LANGS, LangText, LangType } from "../lib/langs";
 declare let chrome: Browser;
 declare let browser: Browser;
 interface MWindow extends Window {
@@ -7,27 +7,88 @@ interface MWindow extends Window {
 }
 declare let window: MWindow;
 
+let forceReloadRequested = false;
+let parsedLang: (LangType & LangText) | undefined =
+  LANGS[document.documentElement.lang];
+
+if (parsedLang !== undefined && document.documentElement.lang !== "en") {
+  for (let key of Object.keys(LANGS.en)) {
+    if ((parsedLang as any)[key] === undefined) {
+      (parsedLang as any)[key] = (LANGS["en"] as any)[key];
+    }
+  }
+}
+
 const corb = chrome || browser;
+
+const redactAddElem = (key: string, elemA: Element, config: any) => {
+  let elem = elemA as HTMLElement;
+
+  if (elem.innerHTML == "") {
+    elem.style.display = "none";
+  }
+
+  // generate a random UUID
+  let uid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    let r = (Math.random() * 16) | 0,
+      v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+
+  elem.classList.add("redact-elem");
+  elem.classList.add("redact-elemid-" + uid);
+  let setText: string | null = null;
+  if ((parsedLang as any)["_" + key] !== undefined)
+    setText = (parsedLang as any)["_" + key];
+  if (setText !== null) {
+    try {
+      let itemTitle = document.querySelector(
+        ".redact-elemid-" + uid + " h4 span a span"
+      )!.innerHTML;
+      setText += ` (${itemTitle})`;
+    } catch (e) {}
+    elem.setAttribute("ctext", setText);
+  }
+
+  if (config.clickToShow !== false) {
+    elem.classList.add("can-show");
+    elem.addEventListener("click", (e) => {
+      if (elem.classList.contains("temp-show")) {
+        e.preventDefault();
+        elem.classList.remove("temp-show");
+        return;
+      }
+      e.preventDefault();
+      elem.classList.add("temp-show");
+    });
+  }
+};
 
 let ccDebounceTimer: NodeJS.Timeout | null = null;
 let definedFeedHolder = false;
-const contentCleaner = (key: string | undefined, isreRun = false, config: any) => {
+const contentCleaner = (
+  key: string | undefined,
+  isreRun = false,
+  config: any
+) => {
   if (window.pausecc === true) return;
   if (window.location.pathname !== "/") {
     console.log(
       "contentCleaner:v" +
-        (chrome || browser).runtime.getManifest().version +
+        corb.runtime.getManifest().version +
         " - paused as not on home page"
     );
     definedFeedHolder = false;
     return;
   }
   console.log(
-    "contentCleaner:v" +
-      (chrome || browser).runtime.getManifest().version +
-      " " +
-      key
+    "contentCleaner:v" + corb.runtime.getManifest().version + " " + key
   );
+  if (forceReloadRequested) {
+    forceReloadRequested = false;
+    return window.location.reload();
+  }
+
   try {
     let feed: Element | null = null;
     if (!definedFeedHolder) {
@@ -35,10 +96,7 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
       for (let feedHeader of window.document.querySelectorAll(
         'h3[dir="auto"]'
       )) {
-        if (
-          feedHeader.innerHTML ===
-          langs[document.documentElement.lang].newsFeedPosts
-        ) {
+        if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
           console.log("contentCleaner: try main finder - 1");
           if (feedHeader.parentNode!.children.length > 3) {
             definedFeedHolder = true;
@@ -55,10 +113,7 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
       for (let feedHeader of window.document.querySelectorAll(
         'h3[dir="auto"]'
       )) {
-        if (
-          feedHeader.innerHTML ===
-          langs[document.documentElement.lang].newsFeedPosts
-        ) {
+        if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
           console.log("contentCleaner: try main finder - 2");
           if ((feedHeader.parentNode as Element).children.length === 2) {
             if (
@@ -84,7 +139,7 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
     }
     console.log(
       "contentCleaner:v" +
-        (chrome || browser).runtime.getManifest().version +
+        corb.runtime.getManifest().version +
         " " +
         key +
         " -clean"
@@ -114,66 +169,98 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
         result.ignored += 1;
         continue;
       }
-      if (
-        elem.innerHTML.indexOf(
-          langs[document.documentElement.lang].reelsBlock
-        ) >= 0
-      ) {
-        if (config.reels === true) {
+      if (elem.innerHTML.indexOf(parsedLang!.friendRequests!) >= 0) {
+        if (config.friendRequests !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-reels-redact");
           result.opsignored += 1;
           continue;
         }
-        elem.classList.add("redact-elem");
+        redactAddElem("friendRequests", elem, config);
         elem.classList.add("redact-elem-reels");
         result.redacted.reels += 1;
         continue;
       }
-      if (
-        elem.innerHTML.indexOf(
-          langs[document.documentElement.lang].commentedOn
-        ) >= 0
-      ) {
-        if (config.commentedOn === true) {
+      if (elem.innerHTML.indexOf(parsedLang!.reelsBlock!) >= 0) {
+        if (config.reels !== true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-reels-redact");
+          result.opsignored += 1;
+          continue;
+        }
+        redactAddElem("reelsBlock", elem, config);
+        elem.classList.add("redact-elem-reels");
+        result.redacted.reels += 1;
+        continue;
+      }
+      if (elem.innerHTML.indexOf(parsedLang!.containsReels!) >= 0) {
+        if (config.containsReels !== true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-reels-redact");
+          result.opsignored += 1;
+          continue;
+        }
+        redactAddElem("containsReels", elem, config);
+        elem.classList.add("redact-elem-reels");
+        result.redacted.reels += 1;
+        continue;
+      }
+      if (elem.innerHTML.indexOf(" " + parsedLang!.commentedOn) >= 0) {
+        if (config.commentedOn !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-commentedOn-redact");
           result.opsignored += 1;
           continue;
         }
-        elem.classList.add("redact-elem");
+        redactAddElem("commentedOn", elem, config);
         elem.classList.add("redact-elem-commentedOn");
         result.redacted.commentedOn += 1;
         continue;
       }
-      if (
-        elem.innerHTML.indexOf(
-          langs[document.documentElement.lang].answeredQuestion
-        ) >= 0
-      ) {
-        if (config.answeredQuestion === true) {
+      if (elem.innerHTML.indexOf(" " + parsedLang!.commentedOnFriend) >= 0) {
+        if (config.commentedOnFriend !== true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-commentedOn-redact");
+          result.opsignored += 1;
+          continue;
+        }
+        redactAddElem("commentedOnFriend", elem, config);
+        elem.classList.add("redact-elem-commentedOn");
+        result.redacted.commentedOn += 1;
+        continue;
+      }
+      if (elem.innerHTML.indexOf(" " + parsedLang!.tagged) >= 0) {
+        if (config.tagged !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-answeredQuestion-redact");
           result.opsignored += 1;
           continue;
         }
-        elem.classList.add("redact-elem");
+        redactAddElem("tagged", elem, config);
         elem.classList.add("redact-elem-answeredQuestion");
         result.redacted.answeredQuestion += 1;
         continue;
       }
-      if (
-        elem.innerHTML.indexOf(
-          langs[document.documentElement.lang].peopleKnow
-        ) >= 0
-      ) {
-        if (config.peopleMayKnow === true) {
+      if (elem.innerHTML.indexOf(" " + parsedLang!.answeredQuestion) >= 0) {
+        if (config.answeredQuestion !== true) {
+          elem.classList.add("no-redact-elem");
+          elem.classList.add("no-answeredQuestion-redact");
+          result.opsignored += 1;
+          continue;
+        }
+        redactAddElem("answeredQuestion", elem, config);
+        elem.classList.add("redact-elem-answeredQuestion");
+        result.redacted.answeredQuestion += 1;
+        continue;
+      }
+      if (elem.innerHTML.indexOf(parsedLang!.peopleKnow!) >= 0) {
+        if (config.peopleMayKnow !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-peopleMayKnow-redact");
           result.opsignored += 1;
           continue;
         }
-        elem.classList.add("redact-elem");
+        redactAddElem("peopleKnow", elem, config);
         elem.classList.add("redact-elem-peopleMayKnow");
         result.redacted.peopleMayKnow += 1;
         continue;
@@ -193,23 +280,19 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
         elem.innerHTML.indexOf('/posts/') < 0
         )*/
       ) {
-        elem.classList.add("redact-elem");
+        redactAddElem("ad", elem, config);
         elem.classList.add("redact-elem-ads");
         result.redacted.ads += 1;
         continue;
       }
-      if (
-        elem.innerHTML.indexOf(
-          langs[document.documentElement.lang].suggested
-        ) >= 0
-      ) {
-        if (config.suggestions === true) {
+      if (elem.innerHTML.indexOf(">" + parsedLang!.suggested + "<") >= 0) {
+        if (config.suggestions !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-suggestions-redact");
           result.opsignored += 1;
           continue;
         }
-        elem.classList.add("redact-elem");
+        redactAddElem("suggested", elem, config);
         elem.classList.add("redact-elem-suggestions");
         result.redacted.suggestions += 1;
         continue;
@@ -259,9 +342,9 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
         }
         hiracDiv.setAttribute("id", "stories-container");
       }
-      if (config.stories !== true) {
-        let storiesDoc = document.getElementById("stories-container")!;
-        for (let childH of storiesDoc.children) {
+      if (config.stories !== false) {
+        let storiesDoc2 = document.getElementById("stories-container")!;
+        for (let childH of storiesDoc2.children) {
           if (childH.getAttribute("id") === "fbcont-banner") continue;
           childH.classList.add("stories");
         }
@@ -269,11 +352,43 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
       if (document.getElementById("fbcont-banner") === null) {
         document.getElementById("stories-container")!.innerHTML =
           '<div id="fbcont-banner" class="redact-elem redact-elem-fbhaar" fbver="' +
-          (chrome || browser).runtime.getManifest().version +
+          corb.runtime.getManifest().version +
           '" fbtxt="Facebook Hide Recommendations and Reels v' +
-          (chrome || browser).runtime.getManifest().version +
+          corb.runtime.getManifest().version +
           '"></div>' +
           document.getElementById("stories-container")!.innerHTML;
+      }
+      if (
+        config.version !== corb.runtime.getManifest().version &&
+        document.getElementById("fbversion-banner") === null
+      ) {
+        document.getElementById("stories-container")!.innerHTML =
+          document.getElementById("stories-container")!.innerHTML +
+          '<div id="fbversion-banner" class="redact-elem redact-elem-fbhaar" style="background: var(--notification-badge);" fbver="' +
+          corb.runtime.getManifest().version +
+          '" fbtxt="Facebook Hide Recommendations and Reels v' +
+          corb.runtime.getManifest().version +
+          ' has some configuration changes. Please open the plugin config to see"></div>';
+      }
+    }
+    if (
+      config.createPost !== false &&
+      document.getElementById("createPost-container") === null
+    ) {
+      try {
+        for (let elem of document.getElementsByTagName("h3")) {
+          if (elem.innerHTML === parsedLang!.createAPost) {
+            elem.parentElement!.parentElement!.parentElement!.parentElement!.setAttribute(
+              "id",
+              "createPost-container"
+            );
+            elem.parentElement!.parentElement!.parentElement!.parentElement!.style.display =
+              "none";
+            break;
+          }
+        }
+      } catch (e) {
+        console.error(e);
       }
     }
     if (isreRun) return;
@@ -286,16 +401,39 @@ const contentCleaner = (key: string | undefined, isreRun = false, config: any) =
   }
 };
 
-if (langs[document.documentElement.lang] === undefined) {
+if (parsedLang === undefined) {
   // unknown lang
   console.warn("Unknown lang!");
-  alert('FB Hide Recommendations and Reels: Unknown language! - Please log an issue on our GitHub page to add your language ('+document.documentElement.lang+'). This plugin cannot work without defining a language.');
+  alert(
+    "FB Hide Recommendations and Reels: Unknown language! - Please log an issue on our GitHub page to add your language (" +
+      document.documentElement.lang +
+      "). This plugin cannot work without defining a language."
+  );
 } else
   document.body.onload = () => {
-    chrome.storage.sync.get("data").then(async (items) => {
+    corb.storage.sync.get("data").then(async (items) => {
       let config = (items || {}).data || {};
+      if (config.version !== corb.runtime.getManifest().version) {
+        // new version alert
+      }
+      if (config.version === undefined) {
+        // config never set, default it
+        config.friendRequests = false;
+        config.reels = true;
+        config.containsReels = true;
+        config.suggestions = true;
+        config.tagged = true;
+        config.commentedOn = true;
+        config.commentedOnFriend = true;
+        config.answeredQuestion = true;
+        config.peopleMayKnow = true;
+        config.stories = true;
+        config.needsDelay = false;
+        config.clickToShow = true;
+        config.createPost = true;
+      }
       console.log("Known CC Config", config);
-      if (config.needsDelay === true) {
+      if (config.needsDelay !== false) {
         console.log(
           "Delaying CC by 5s as per https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/15"
         );
@@ -344,6 +482,17 @@ if (langs[document.documentElement.lang] === undefined) {
           () => contentCleaner("timer", false, config),
           10000
         );
+      });
+
+      corb.runtime.onMessage.addListener(function (
+        request,
+        sender,
+        sendResponse
+      ) {
+        if (request.fbhrar_reload === true) {
+          console.log('force reload requested: config changed');
+          forceReloadRequested = true;
+        }
       });
     });
   };
