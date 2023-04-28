@@ -1,5 +1,5 @@
 import type { Browser } from "webextension-polyfill";
-import { langs } from "./langs";
+import { langs } from "../lib/langs";
 declare let chrome: Browser;
 declare let browser: Browser;
 interface MWindow extends Window {
