@@ -45,7 +45,7 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
       let itemTitle = document.querySelector(
         ".redact-elemid-" + uid + " h4 span a span"
       )!.innerHTML;
-      setText += ` (${itemTitle})`;
+      setText += ` (${decodeURIComponent(itemTitle)})`;
     } catch (e) {}
     elem.setAttribute("ctext", setText);
   }
