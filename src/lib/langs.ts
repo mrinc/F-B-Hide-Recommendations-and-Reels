@@ -83,7 +83,7 @@ export const langs: Record<string, LangType & LangText> = {
   },
   ja: {
     name: "Japanese",
-    newsFeedPosts: "News Feed posts",
+    newsFeedPosts: "ニュースフィードの投稿",
     reelsBlock: "リールとショート動画",
     commentedOn: "commented on a post from",
     peopleKnow: "People You May Know",

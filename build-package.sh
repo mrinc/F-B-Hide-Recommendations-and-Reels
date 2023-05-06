@@ -49,7 +49,13 @@ if [ "$1" = "firefox" ] || [ -z "$1" ]; then
   cp -Rv ./README.md ./dist/unpacked/firefox/
   cp -Rv ./lib/* ./dist/unpacked/firefox/
   cp -Rv ./firefox/* ./dist/unpacked/firefox/
-  jq -s '.[0] * .[1]' ./lib/manifest.json ./firefox/manifest.json >./dist/unpacked/firefox/manifest.json
+  jq -s '.[0] * .[1]' ./lib/manifest.json ./firefox/manifest.json > ./dist/unpacked/firefox/manifest.json
+  jq '{"background": { "scripts": .background[0].scripts } }' ./dist/unpacked/firefox/manifest.json > ./dist/unpacked/firefox/manifest-temp.json
+  jq 'del(.background)' ./dist/unpacked/firefox/manifest.json > ./dist/unpacked/firefox/manifest-temp2.json
+  rm ./dist/unpacked/firefox/manifest.json
+  jq -s '.[0] * .[1]' ./dist/unpacked/firefox/manifest-temp.json ./dist/unpacked/firefox/manifest-temp2.json > ./dist/unpacked/firefox/manifest.json
+  rm ./dist/unpacked/firefox/manifest-temp.json
+  rm ./dist/unpacked/firefox/manifest-temp2.json
   zip "dist/packed/firefox.latest.zip" -j ./dist/unpacked/firefox/*
   zip "dist/packed/firefox.v${PKVERSION}.zip" -j ./dist/unpacked/firefox/*
 fi
