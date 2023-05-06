@@ -87,7 +87,7 @@ export const langs: Record<string, LangType & LangText> = {
     reelsBlock: "リールとショート動画",
     commentedOn: "commented on a post from",
     peopleKnow: "People You May Know",
-    suggested: "Suggested for you",
+    suggested: "おすすめ",
     answeredQuestion: "がこの質問に答えました",
     createAPost: "投稿を作成する",
   },
