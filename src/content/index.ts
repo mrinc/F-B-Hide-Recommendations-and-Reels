@@ -146,7 +146,7 @@ const contentCleaner = (
             )
               continue;
             definedFeedHolder = true;
-            (feedHeader.parentNode as Element).children[1].classList.add(
+            (feedHeader.parentNode as Element).children[2].classList.add(
               "defined-feed-holder"
             );
           }
