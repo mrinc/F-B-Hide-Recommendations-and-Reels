@@ -130,6 +130,30 @@ const contentCleaner = (
         }
       }
     }
+    if (!definedFeedHolder) {
+      //try method 3
+      for (let feedHeader of window.document.querySelectorAll(
+        'h3[dir="auto"]'
+      )) {
+        if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
+          console.log("contentCleaner: try main finder - 3");
+          if ((feedHeader.parentNode as Element).children.length === 3) {
+            if (
+              (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
+              (feedHeader.parentNode as Element).children[1].tagName !== "DIV" ||
+              (feedHeader.parentNode as Element).children[2].tagName !== "DIV" ||
+              (feedHeader.parentNode as Element).children[2].children.length === 0
+            )
+              continue;
+            definedFeedHolder = true;
+            (feedHeader.parentNode as Element).children[1].classList.add(
+              "defined-feed-holder"
+            );
+          }
+          break;
+        }
+      }
+    }
     if (definedFeedHolder) {
       feed = window.document.getElementsByClassName("defined-feed-holder")[0];
     }
