@@ -30,6 +30,7 @@ export interface SystemConfigSystemFormFormField {
   title: string;
   desc: string;
   colour?: string;
+  addedInVersion?: string;
 }
 export interface SystemConfigSystemFormForm {
   title: string;
@@ -172,48 +173,56 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
                 id: "reels",
                 title: "Reels and short videos",
                 desc: "Reels and short video blocks.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "containsReels",
                 title: "Shared Reels",
                 desc: "A shared reel from friends.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "suggestions",
                 title: "Suggested for you / Suggestions",
                 desc: "Recommendations/suggestions of pages.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "commentedOn",
                 title: "Friend commented on X from unknown",
                 desc: "Friends comment on other pages/posts that you do not like.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "commentedOnFriend",
                 title: "Friend commented on X",
                 desc: "Friends comment on other pages/posts.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "tagged",
                 title: "Friend was tagged",
                 desc: "A friend was tagged on a post/album.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "answeredQuestion",
                 title: "Friend answered a question",
                 desc: "A friend answered a question block/post.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "peopleMayKnow",
                 title: "Friend recommendations",
                 desc: "Friends 'recommendations' or people you may know.",
+                addedInVersion: "1.0.0",
               },
             ],
           },
@@ -225,18 +234,21 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
                 id: "friendRequests",
                 title: "Friend requests",
                 desc: "Friend requests.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "stories",
                 title: "Stories",
                 desc: "Facebook stories block.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "createPost",
                 title: "Create post",
                 desc: "Create new post block.",
+                addedInVersion: "1.0.0",
               },
             ],
           },
@@ -245,15 +257,24 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
             fields: [
               {
                 type: "checkbox",
+                id: "hideBlocks",
+                title: "Hide all blocks",
+                desc: "Instead of showing a block with what was hidden, just hide it.",
+                addedInVersion: "1.25.7",
+              },
+              {
+                type: "checkbox",
                 id: "needsDelay",
                 title: "5s load delay",
                 desc: "5s delay after page load before activating extension.",
+                addedInVersion: "1.0.0",
               },
               {
                 type: "checkbox",
                 id: "clickToShow",
                 title: "Click to show/hide",
                 desc: "You can click to show/hide specific elements.",
+                addedInVersion: "1.0.0",
               },
             ],
           },

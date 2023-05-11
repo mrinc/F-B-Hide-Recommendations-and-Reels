@@ -41,6 +41,7 @@ export class Popup {
         data.needsDelay = data.needsDelay ?? false;
         data.clickToShow = data.clickToShow ?? true;
         data.createPost = data.createPost ?? true;
+        data.hideBlocks = data.hideBlocks ?? false;
 
         //if (corb.runtime.error) return;
         for (let configElem of configElems) {

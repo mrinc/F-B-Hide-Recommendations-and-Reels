@@ -52,12 +52,14 @@ export class Notif {
           '50': '249 250 251',
           '500': '156 163 175',
           '600': '107 114 128',
+          '700': '75 85 99',
           '900': '17 24 39',
         },
         'red': {
           '50': '254 242 242',
           '500': '229 62 62',
           '600': '220 38 38',
+          '700': '185 28 28',
           '900': '52 8 8',
         },
         'white': {
@@ -67,18 +69,21 @@ export class Notif {
           '50': '243 249 244',
           '500': '52 211 153',
           '600': '16 185 129',
+          '700': '5 150 105',
           '900': '6 95 70',
         },
         'indigo': {
           '50': '237 242 255',
           '500': '79 70 229',
           '600': '67 56 202',
+          '700': '55 48 163',
           '900': '24 19 112',
         },
         'blue': {
           '50': '239 246 255',
           '500': '59 130 246',
           '600': '37 99 235',
+          '700': '29 78 216',
           '900': '16 42 111',
         }
       }
@@ -165,6 +170,15 @@ export class Notif {
         `</div></div>`
       );
     if (layoutpart === "form") {
+      const isFieldNew = (version: string) => {
+        let currentVersion = corb.runtime.getManifest().version;
+        let currentVersionSplit = currentVersion.split(".").map(x => Number.parseInt(x));
+        let fieldVersionSplit = version.split(".").map(x => Number.parseInt(x));
+        if (currentVersionSplit[0] > fieldVersionSplit[0]) return false;
+        if (currentVersionSplit[0] > fieldVersionSplit[0]) return false;
+        if (currentVersionSplit[0] > fieldVersionSplit[0]) return false;
+        return true;
+      }
       let output =
         `<div id="fbhrr-configureForm" class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8" style="display:block;">` +
         `<div class="space-y-12 p-10"><div class=""><div class="border-b border-gray-900/10 pb-12">` +
@@ -186,7 +200,8 @@ export class Notif {
               `<input type="checkbox" id="fbhrr-${formField.id}" name="${formField.id}"` +
               ` class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">` +
               `</div><div class="text-sm leading-6">` +
-              `<label for="reels" class="font-medium text-gray-900">${formField.title}<span id="fbhrr-${formField.id}-note"></span></label>` +
+              `<label for="reels" class="font-medium text-gray-900">${formField.title}<span id="fbhrr-${formField.id}-note"></span>`+
+              (formField.addedInVersion !== undefined && isFieldNew(formField.addedInVersion) ? `<div class="flex-none rounded-full bg-blue-900 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900">NEW</div>` : '')+`</label>` +
               `<p class="text-gray-500">${formField.desc}</p>` +
               `</div></div>`;
           else if (formField.type === "button")
