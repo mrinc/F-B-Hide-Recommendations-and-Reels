@@ -6,6 +6,9 @@
 .redact-elem>div {
   display: none !important;
 }
+.redact-elem.complete-redact {
+  display: none !important;
+}
 
 #fbversion-banner {
   height: 80px;

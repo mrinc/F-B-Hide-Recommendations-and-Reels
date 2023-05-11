@@ -46,7 +46,7 @@ export class Notif {
   }
   public static generate(layoutpart: string, meta: any = {}) {
     if (layoutpart === "css") {
-      let output = '';
+      let output = '.tag { display: inline-block; font-size: 0.775rem; line-height: 0.7rem; margin-left: 10px; }';
       let colours: Record<string, Record<string, string>> = {
         'gray': {
           '50': '249 250 251',
@@ -175,8 +175,8 @@ export class Notif {
         let currentVersionSplit = currentVersion.split(".").map(x => Number.parseInt(x));
         let fieldVersionSplit = version.split(".").map(x => Number.parseInt(x));
         if (currentVersionSplit[0] > fieldVersionSplit[0]) return false;
-        if (currentVersionSplit[0] > fieldVersionSplit[0]) return false;
-        if (currentVersionSplit[0] > fieldVersionSplit[0]) return false;
+        if (currentVersionSplit[1] > fieldVersionSplit[1]) return false;
+        if (currentVersionSplit[2] > fieldVersionSplit[2]) return false;
         return true;
       }
       let output =
@@ -201,7 +201,7 @@ export class Notif {
               ` class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">` +
               `</div><div class="text-sm leading-6">` +
               `<label for="reels" class="font-medium text-gray-900">${formField.title}<span id="fbhrr-${formField.id}-note"></span>`+
-              (formField.addedInVersion !== undefined && isFieldNew(formField.addedInVersion) ? `<div class="flex-none rounded-full bg-blue-900 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-900">NEW</div>` : '')+`</label>` +
+              (formField.addedInVersion !== undefined && isFieldNew(formField.addedInVersion) ? `<div class="flex-none tag rounded-full bg-blue-500 px-3.5 py-1 font-semibold text-white shadow-sm">NEW IN v${formField.addedInVersion}</div>` : '')+`</label>` +
               `<p class="text-gray-500">${formField.desc}</p>` +
               `</div></div>`;
           else if (formField.type === "button")

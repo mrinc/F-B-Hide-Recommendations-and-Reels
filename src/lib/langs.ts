@@ -260,7 +260,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
                 id: "hideBlocks",
                 title: "Hide all blocks",
                 desc: "Instead of showing a block with what was hidden, just hide it.",
-                addedInVersion: "1.25.7",
+                addedInVersion: "1.25.9",
               },
               {
                 type: "checkbox",

@@ -56,15 +56,22 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
   });
 
   elem.classList.add("redact-elem");
+  if (config.hideBlocks === true) {
+    elem.classList.add("complete-redact");
+  }
   elem.classList.add("redact-elemid-" + uid);
   let setText: string | null = null;
   if ((parsedLang as any)["_" + key] !== undefined)
     setText = (parsedLang as any)["_" + key];
   if (setText !== null) {
     try {
-      let itemTitle = document.querySelector(
+      let elem = document.querySelector(
         ".redact-elemid-" + uid + " h4 span a span"
-      )!.innerHTML;
+      )!
+      while (elem.children.length > 0) {
+        elem = elem.children[0] as HTMLElement;
+      }
+      let itemTitle = elem.innerHTML;
       setText += ` (${decodeURIComponent(itemTitle)})`;
     } catch (e) {}
     elem.setAttribute("ctext", setText);

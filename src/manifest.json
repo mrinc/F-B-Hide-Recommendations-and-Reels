@@ -1,6 +1,6 @@
 {
   "name": "FB Hide Recommendations and Reels",
-  "version": "1.25.7",
+  "version": "1.25.9",
   "description": "This extension hides Reels and recommendations on facebook",
   "background": [{
     "scripts": ["background.js","tailwindcss.js"],
