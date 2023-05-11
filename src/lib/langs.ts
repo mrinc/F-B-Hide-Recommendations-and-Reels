@@ -24,8 +24,58 @@ export interface LangType {
   answeredQuestion?: string;
   createAPost?: string;
 }
+export interface SystemConfigSystemFormFormField {
+  type: "checkbox" | "button";
+  id: string;
+  title: string;
+  desc: string;
+  colour?: string;
+}
+export interface SystemConfigSystemFormForm {
+  title: string;
+  fields?: SystemConfigSystemFormFormField[];
+}
+export interface SystemConfigSystemForm {
+  title: string;
+  desc: string;
+  forms: SystemConfigSystemFormForm[];
+}
+export interface SystemConfigSystemBannerNotif {
+  text: string;
+  colour: string;
+}
+export interface SystemConfigSystemBanner {
+  link: string;
+  linkMsg: string;
+  showLangs: boolean;
+  btn: string;
+  colour: string;
+  title: string;
+  desc: string;
+  notif?: SystemConfigSystemBannerNotif;
+}
+export interface SystemConfigSystemHeader {
+  msg: string;
+  link: string;
+  linkMsg: string;
+}
+export interface SystemConfigSystemCss {}
+export interface SystemConfigSystemPopup {
+  css?: SystemConfigSystemCss;
+  header?: SystemConfigSystemHeader;
+  banner?: SystemConfigSystemBanner;
+  bannerError?: SystemConfigSystemBanner;
+  bannerHello?: SystemConfigSystemBanner;
+  bannerHelloUpgrade?: SystemConfigSystemBanner;
+  formFieldHello?: SystemConfigSystemFormForm;
+  form?: SystemConfigSystemForm;
+}
+export interface SystemConfigSystem extends SystemConfigSystemPopup {}
+export interface SystemConfig {
+  _system?: SystemConfigSystem;
+}
 
-export const langs: Record<string, LangType & LangText> = {
+export const langs: Record<string, LangType & LangText & SystemConfig> = {
   en: {
     name: "English",
     newsFeedPosts: "News Feed posts",
@@ -50,6 +100,178 @@ export const langs: Record<string, LangType & LangText> = {
     _peopleKnow: "Friend recommendations",
     _suggested: "Suggestions",
     _answeredQuestion: "A friend answered a question",
+
+    _system: {
+      css: {},
+      header: {
+        msg: "Something not working?",
+        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/new",
+        linkMsg: "Log an issue",
+      },
+      banner: {
+        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels",
+        linkMsg: "Learn more",
+        showLangs: true,
+        btn: "Configure",
+        colour: "indigo",
+        title: "FB Hide Recommendations and Reels",
+        desc: "This extension cleans your feed of irrelevant content.",
+      },
+      bannerHello: {
+        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels",
+        linkMsg: "Learn more",
+        showLangs: true,
+        btn: "Start",
+        colour: "green",
+        title: "Welcome to FB Hide Recommendations and Reels",
+        desc: "Let's get you started. Click the button below to configure the extension.",
+      },
+      bannerHelloUpgrade: {
+        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels",
+        linkMsg: "Learn more",
+        showLangs: true,
+        btn: "Start",
+        colour: "green",
+        title: "Welcome to FB Hide Recommendations and Reels",
+        desc: "Let's get you started. Click the button below to configure the extension.",
+        notif: {
+          text: "You've got a new version",
+          colour: "green",
+        }
+      },
+      formFieldHello: {
+        title: "Configuration",
+        fields: [
+          {
+            type: "button",
+            id: "closeConfig",
+            colour: "green",
+            title: "Save Configuration",
+            desc: "Lets get you back to work.",
+          },
+        ],
+      },
+      bannerError: {
+        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels",
+        linkMsg: "Learn more",
+        showLangs: false,
+        btn: "Send support diagnostic",
+        colour: "green",
+        title: "We are sorry, but something went wrong.",
+        desc: "We were unable to find the feed elements on this page.<br />By sending a support diagnostic, we take a snip of the html on this page and send it to us. This helps us to find the issue and fix it.<br />The diagnostic is discarded once the fix is made or within 30 days - whichever happens first. No information in the diagnostic will be used/stored/shared for any other reason than to identify the issue and resolve it.",
+      },
+      form: {
+        title: "Configure FB Hide Recommendations and Reels",
+        desc: "Configure how you want this plugin to work",
+        forms: [
+          {
+            title: "Hide blocks",
+            fields: [
+              {
+                type: "checkbox",
+                id: "reels",
+                title: "Reels and short videos",
+                desc: "Reels and short video blocks.",
+              },
+              {
+                type: "checkbox",
+                id: "containsReels",
+                title: "Shared Reels",
+                desc: "A shared reel from friends.",
+              },
+              {
+                type: "checkbox",
+                id: "suggestions",
+                title: "Suggested for you / Suggestions",
+                desc: "Recommendations/suggestions of pages.",
+              },
+              {
+                type: "checkbox",
+                id: "commentedOn",
+                title: "Friend commented on X from unknown",
+                desc: "Friends comment on other pages/posts that you do not like.",
+              },
+              {
+                type: "checkbox",
+                id: "commentedOnFriend",
+                title: "Friend commented on X",
+                desc: "Friends comment on other pages/posts.",
+              },
+              {
+                type: "checkbox",
+                id: "tagged",
+                title: "Friend was tagged",
+                desc: "A friend was tagged on a post/album.",
+              },
+              {
+                type: "checkbox",
+                id: "answeredQuestion",
+                title: "Friend answered a question",
+                desc: "A friend answered a question block/post.",
+              },
+              {
+                type: "checkbox",
+                id: "peopleMayKnow",
+                title: "Friend recommendations",
+                desc: "Friends 'recommendations' or people you may know.",
+              },
+            ],
+          },
+          {
+            title: "Hide Globals",
+            fields: [
+              {
+                type: "checkbox",
+                id: "friendRequests",
+                title: "Friend requests",
+                desc: "Friend requests.",
+              },
+              {
+                type: "checkbox",
+                id: "stories",
+                title: "Stories",
+                desc: "Facebook stories block.",
+              },
+              {
+                type: "checkbox",
+                id: "createPost",
+                title: "Create post",
+                desc: "Create new post block.",
+              },
+            ],
+          },
+          {
+            title: "Plugin settings",
+            fields: [
+              {
+                type: "checkbox",
+                id: "needsDelay",
+                title: "5s load delay",
+                desc: "5s delay after page load before activating extension.",
+              },
+              {
+                type: "checkbox",
+                id: "clickToShow",
+                title: "Click to show/hide",
+                desc: "You can click to show/hide specific elements.",
+              },
+            ],
+          },
+          {
+            title: "Configuration",
+            fields: [
+              {
+                type: "button",
+                id: "resetConfig",
+                colour: "red",
+                title: "Reset Configuration",
+                desc: "Default all the config settings.",
+              },
+            ],
+          },
+        ],
+      },
+    },
   },
   pl: {
     name: "Polish",

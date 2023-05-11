@@ -1,5 +1,6 @@
 import type { Browser } from "webextension-polyfill";
 import { langs as LANGS, LangText, LangType } from "../lib/langs";
+import { Popup } from "../lib/popup";
 declare let chrome: Browser;
 declare let browser: Browser;
 interface MWindow extends Window {
@@ -18,6 +19,25 @@ if (parsedLang !== undefined && document.documentElement.lang !== "en") {
     }
   }
 }
+
+/*const sendError = () => {
+  const headers = new Headers();
+  headers.append("Content-Type", "application/json");
+
+  const body = {
+    html: document.body.innerHTML,
+    lang: document.documentElement.lang
+  };
+
+  const options = {
+    method: "POST",
+    headers,
+    mode: "cors",
+    body: JSON.stringify(body),
+  };
+
+  fetch("https://eowgrcewtlqaw4t.m.pipedream.net", options);
+};*/
 
 const corb = chrome || browser;
 
@@ -64,6 +84,7 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
   }
 };
 
+let waitingOnConfig = false;
 let ccDebounceTimer: NodeJS.Timeout | null = null;
 let definedFeedHolder = false;
 const contentCleaner = (
@@ -140,9 +161,12 @@ const contentCleaner = (
           if ((feedHeader.parentNode as Element).children.length === 3) {
             if (
               (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
-              (feedHeader.parentNode as Element).children[1].tagName !== "DIV" ||
-              (feedHeader.parentNode as Element).children[2].tagName !== "DIV" ||
-              (feedHeader.parentNode as Element).children[2].children.length === 0
+              (feedHeader.parentNode as Element).children[1].tagName !==
+                "DIV" ||
+              (feedHeader.parentNode as Element).children[2].tagName !==
+                "DIV" ||
+              (feedHeader.parentNode as Element).children[2].children.length ===
+                0
             )
               continue;
             definedFeedHolder = true;
@@ -383,16 +407,10 @@ const contentCleaner = (
           document.getElementById("stories-container")!.innerHTML;
       }
       if (
-        config.version !== corb.runtime.getManifest().version &&
-        document.getElementById("fbversion-banner") === null
+        config.version !== corb.runtime.getManifest().version && !waitingOnConfig
       ) {
-        document.getElementById("stories-container")!.innerHTML =
-          document.getElementById("stories-container")!.innerHTML +
-          '<div id="fbversion-banner" class="redact-elem redact-elem-fbhaar" style="background: var(--notification-badge);" fbver="' +
-          corb.runtime.getManifest().version +
-          '" fbtxt="Facebook Hide Recommendations and Reels v' +
-          corb.runtime.getManifest().version +
-          ' has some configuration changes. Please open the plugin config to see"></div>';
+        waitingOnConfig = true;
+        Popup.initWebStartHome(config.version !== undefined && config.version !== null && config.version !== '');
       }
     }
     if (
@@ -441,20 +459,9 @@ if (parsedLang === undefined) {
         // new version alert
       }
       if (config.version === undefined) {
-        // config never set, default it
-        config.friendRequests = false;
-        config.reels = true;
-        config.containsReels = true;
-        config.suggestions = true;
-        config.tagged = true;
-        config.commentedOn = true;
-        config.commentedOnFriend = true;
-        config.answeredQuestion = true;
-        config.peopleMayKnow = true;
-        config.stories = true;
-        config.needsDelay = false;
-        config.clickToShow = true;
-        config.createPost = true;
+        // config never set
+        Popup.initWebStartHome(false);
+        return;
       }
       console.log("Known CC Config", config);
       if (config.needsDelay !== false) {
@@ -514,7 +521,7 @@ if (parsedLang === undefined) {
         sendResponse
       ) {
         if (request.fbhrar_reload === true) {
-          console.log('force reload requested: config changed');
+          console.log("force reload requested: config changed");
           forceReloadRequested = true;
         }
       });
