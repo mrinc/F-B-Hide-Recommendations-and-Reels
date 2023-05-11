@@ -7,14 +7,6 @@ declare let browser: Browser;
 
 const corb = chrome || browser;
 
-let configElems: Array<string> = [];
-for (let form of Notif.DefaultPopupConfig().form!.forms) {
-  for (let field of form.fields!) {
-    if (field.type !== "checkbox") continue;
-    configElems.push(field.id);
-  }
-}
-
 export class Popup {
   public static initPopupConfig(
     key: string,
@@ -22,6 +14,13 @@ export class Popup {
     docu: Document,
     showSaved: boolean = true
   ) {
+    let configElems: Array<string> = [];
+    for (let form of Notif.DefaultPopupConfig().form!.forms) {
+      for (let field of form.fields!) {
+        if (field.type !== "checkbox") continue;
+        configElems.push(field.id);
+      }
+    }
     docu.getElementById(key)!.innerHTML = Notif.createPopup(config);
     (() => {
       corb.storage.sync.get("data").then((items: any) => {
@@ -140,11 +139,7 @@ export class Popup {
       };
     })();
   }
-  public static initWebStartHome(upgrade: boolean) {
-    let config = Notif.DefaultPopupConfig();
-    config.form = undefined;
-    config.banner = config.bannerHello;
-    if (upgrade) config.banner = config.bannerHelloUpgrade;
+  public static initContainer(config: SystemConfigSystem) {
     let clientNode = document.createElement("div");
     clientNode.id = "fbhrr-client";
     // client node acts as a background cover
@@ -176,6 +171,17 @@ export class Popup {
     clientNode.appendChild(iframeNode);
     document.body.appendChild(clientNode);
 
+    return { container: clientNode, node: iframeNode };
+  }
+  public static initWebStartHome(upgrade: boolean) {
+    let config = Notif.DefaultPopupConfig();
+    config.form = undefined;
+    config.banner = config.bannerHello;
+    if (upgrade) config.banner = config.bannerHelloUpgrade;
+    (config.banner as any).showChangelog = true;
+
+    let container = Popup.initContainer(config);
+
     let configConfig = Notif.DefaultPopupConfig();
     configConfig.banner = undefined;
     // overriding for formFieldHello
@@ -187,17 +193,96 @@ export class Popup {
         break;
       }
     }
-    iframeNode.onload = () => {
+    container.node.onload = () => {
       (() => {
-        const iframeDoc = (document.getElementById("fbhrr-iframe") as any)
-          .contentWindow.document;
+        const iframeDoc = (container.node as any).contentWindow.document;
         iframeDoc.getElementById("fbhrr-goConfigure")!.onclick = () => {
           console.log("configure!");
-          Popup.initPopupConfig("fbhrr-content", configConfig, iframeDoc, false);
+          Popup.initPopupConfig(
+            "fbhrr-content",
+            configConfig,
+            iframeDoc,
+            false
+          );
           (() => {
             iframeDoc.getElementById("fbhrr-closeConfig")!.onclick = () => {
               location.reload();
             };
+          })();
+        };
+      })();
+    };
+  }
+  public static async initWebError() {
+    let diagVConfig = (await corb.storage.sync.get("diagVersion")) || {};
+    let diagVersion = diagVConfig.diagVersion || null;
+
+    if (
+      diagVersion !== null &&
+      diagVersion === corb.runtime.getManifest().version
+    )
+      return;
+
+    let config = Notif.DefaultPopupConfig();
+    config.form = undefined;
+    config.banner = config.bannerError;
+
+    let container = Popup.initContainer(config);
+    container.node.onload = () => {
+      (() => {
+        const iframeDoc = (container.node as any).contentWindow.document;
+        iframeDoc.getElementById("fbhrr-learnlink")!.onclick = (e: any) => {
+          e.preventDefault();
+          container.container.remove();
+        };
+        iframeDoc.getElementById("fbhrr-goConfigure")!.onclick = () => {
+          console.log("diagnose!");
+          (async () => {
+            iframeDoc
+              .getElementById("fbhrr-goConfigure")!
+              .setAttribute("disabled", "");
+            iframeDoc.getElementById("fbhrr-goConfigure")!.innerHTML =
+              "sending...";
+            const headers = new Headers();
+            headers.append("Content-Type", "application/json");
+
+            const body = {
+              html: document.body.innerHTML,
+              lang: document.documentElement.lang,
+            };
+
+            const options: any = {
+              method: "POST",
+              headers,
+              mode: "cors",
+              body: JSON.stringify(body),
+            };
+
+            let resp = await fetch(
+              "https://eowgrcewtlqaw4t.m.pipedream.net?pipedream_upload_body=1",
+              options
+            );
+            let data = (await resp.json()) as {
+              ticket: number;
+              url: string;
+            };
+            if (data.ticket === undefined) {
+              alert(
+                "an error occured while sending your diag, this could indicate other issues at hand. Please log an issue with the link above instead."
+              );
+              //container.container.remove();
+              return;
+            }
+            // create a new a href that opens in a new tab/window and click it - url is data.url
+            let elem = document.createElement("a");
+            elem.setAttribute("href", data.url);
+            elem.setAttribute("target", "_blank");
+            container.container.appendChild(elem);
+            elem.click();
+            await corb.storage.sync.set({
+              diagVersion: corb.runtime.getManifest().version,
+            });
+            container.container.remove();
           })();
         };
       })();

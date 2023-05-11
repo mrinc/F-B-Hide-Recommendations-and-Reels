@@ -24,6 +24,7 @@
     "@types/webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {
+    "tailwindcss": "^3.3.2",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.2",
     "webpack": "^5.76.2",

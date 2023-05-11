@@ -46,13 +46,14 @@ export interface SystemConfigSystemBannerNotif {
   colour: string;
 }
 export interface SystemConfigSystemBanner {
-  link: string;
+  link?: string;
   linkMsg: string;
   showLangs: boolean;
   btn: string;
   colour: string;
   title: string;
   desc: string;
+  desc2?: string;
   notif?: SystemConfigSystemBannerNotif;
 }
 export interface SystemConfigSystemHeader {
@@ -153,13 +154,13 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
         ],
       },
       bannerError: {
-        link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels",
-        linkMsg: "Learn more",
+        linkMsg: "Ignore/Continue",
         showLangs: false,
         btn: "Send support diagnostic",
         colour: "green",
         title: "We are sorry, but something went wrong.",
-        desc: "We were unable to find the feed elements on this page.<br />By sending a support diagnostic, we take a snip of the html on this page and send it to us. This helps us to find the issue and fix it.<br />The diagnostic is discarded once the fix is made or within 30 days - whichever happens first. No information in the diagnostic will be used/stored/shared for any other reason than to identify the issue and resolve it.",
+        desc: "We were unable to find the feed elements on this page.<br />This plugin cannot function without knowing where the feed is.<br />Please click the button below to send a support diagnostic.",
+        desc2: "When you send a support diagnostic, we'll capture a snapshot of the HTML on the page to help us identify and resolve any issues. We'll discard the diagnostic once the issue is fixed or after 30 days, whichever comes first. We won't use or share any information in the diagnostic for any other purposes.<br />After you send the diagnostic, we'll create an issue that you can follow if you're interested (Github). Once we resolve the issue and release a new version of the plugin, your browser will automatically update and the plugin will start working.<br />You don't need to uninstall the plugin after sending a diagnostic. It will remain inactive until the new version is released and it attempts to find the feed again.",
       },
       form: {
         title: "Configure FB Hide Recommendations and Reels",

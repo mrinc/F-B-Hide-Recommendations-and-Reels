@@ -20,25 +20,6 @@ if (parsedLang !== undefined && document.documentElement.lang !== "en") {
   }
 }
 
-/*const sendError = () => {
-  const headers = new Headers();
-  headers.append("Content-Type", "application/json");
-
-  const body = {
-    html: document.body.innerHTML,
-    lang: document.documentElement.lang
-  };
-
-  const options = {
-    method: "POST",
-    headers,
-    mode: "cors",
-    body: JSON.stringify(body),
-  };
-
-  fetch("https://eowgrcewtlqaw4t.m.pipedream.net", options);
-};*/
-
 const corb = chrome || browser;
 
 const redactAddElem = (key: string, elemA: Element, config: any) => {
@@ -67,7 +48,7 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
     try {
       let elem = document.querySelector(
         ".redact-elemid-" + uid + " h4 span a span"
-      )!
+      )!;
       while (elem.children.length > 0) {
         elem = elem.children[0] as HTMLElement;
       }
@@ -91,7 +72,7 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
   }
 };
 
-let waitingOnConfig = false;
+let errorNotified = false;
 let ccDebounceTimer: NodeJS.Timeout | null = null;
 let definedFeedHolder = false;
 const contentCleaner = (
@@ -99,6 +80,7 @@ const contentCleaner = (
   isreRun = false,
   config: any
 ) => {
+  if (errorNotified) return;
   if (window.pausecc === true) return;
   if (window.location.pathname !== "/") {
     console.log(
@@ -190,6 +172,8 @@ const contentCleaner = (
     }
 
     if (feed == null) {
+      errorNotified = true;
+      Popup.initWebError();
       return console.warn("cannot find facebook feed");
     }
     console.log(
@@ -413,12 +397,6 @@ const contentCleaner = (
           '"></div>' +
           document.getElementById("stories-container")!.innerHTML;
       }
-      if (
-        config.version !== corb.runtime.getManifest().version && !waitingOnConfig
-      ) {
-        waitingOnConfig = true;
-        Popup.initWebStartHome(config.version !== undefined && config.version !== null && config.version !== '');
-      }
     }
     if (
       config.createPost !== false &&
@@ -453,11 +431,13 @@ const contentCleaner = (
 if (parsedLang === undefined) {
   // unknown lang
   console.warn("Unknown lang!");
-  alert(
-    "FB Hide Recommendations and Reels: Unknown language! - Please log an issue on our GitHub page to add your language (" +
-      document.documentElement.lang +
-      "). This plugin cannot work without defining a language."
-  );
+  if (window.location.pathname === "/") {
+    alert(
+      "FB Hide Recommendations and Reels: Unknown language! - Please log an issue on our GitHub page to add your language (" +
+        document.documentElement.lang +
+        "). This plugin cannot work without defining a language."
+    );
+  }
 } else
   document.body.onload = () => {
     corb.storage.sync.get("data").then(async (items) => {
@@ -468,6 +448,14 @@ if (parsedLang === undefined) {
       if (config.version === undefined) {
         // config never set
         Popup.initWebStartHome(false);
+        return;
+      }
+      if (config.version !== corb.runtime.getManifest().version) {
+        Popup.initWebStartHome(
+          config.version !== undefined &&
+            config.version !== null &&
+            config.version !== ""
+        );
         return;
       }
       console.log("Known CC Config", config);
