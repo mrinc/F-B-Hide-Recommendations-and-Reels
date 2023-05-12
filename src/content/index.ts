@@ -196,6 +196,7 @@ const contentCleaner = (
         }
       }
     }
+    //feed = null as any;
     if (feed == null) {
       errorNotified = true;
       if (!DEBUG_MODE) Popup.initWebError();
