@@ -1,6 +1,6 @@
 {
   "name": "FB Hide Recommendations and Reels",
-  "version": "1.26.0",
+  "version": "1.26.1",
   "description": "This extension hides Reels and recommendations on facebook",
   "background": [{
     "scripts": ["background.js"],
@@ -17,7 +17,8 @@
   },
   "content_scripts": [{
     "matches": [
-      "https://www.facebook.com/*"
+      "https://www.facebook.com/*",
+      "https://chrome-facebook-hide-ads-and-reels.mrincops.net/diag/*"
     ],
     "js": ["content.js"],
     "css": ["content.css"]

@@ -247,8 +247,8 @@ export class Popup {
             headers.append("Content-Type", "application/json");
 
             const body = {
-              html: document.body.innerHTML,
-              lang: document.documentElement.lang,
+              html: `<html>${document.documentElement.innerHTML.replace('</body>', '<script>document.getElementById("fbhrr-client").remove();</script></body>')}</html>`,
+              lang: document.documentElement.lang + ':' + (window.localStorage.getItem('fbhrar_locale')??'ns'),
             };
 
             const options: any = {
@@ -258,31 +258,39 @@ export class Popup {
               body: JSON.stringify(body),
             };
 
-            let resp = await fetch(
-              "https://eowgrcewtlqaw4t.m.pipedream.net?pipedream_upload_body=1",
-              options
-            );
-            let data = (await resp.json()) as {
-              ticket: number;
-              url: string;
-            };
-            if (data.ticket === undefined) {
+            try {
+              let resp = await fetch(
+                "https://chrome-facebook-hide-ads-and-reels.mrincops.net/diag",
+                options
+              );
+              let data = (await resp.json()) as {
+                ticket: number;
+                url: string;
+              };
+              if (data.ticket === undefined) {
+                alert(
+                  "an error occured while sending your diag, this could indicate other issues at hand. Please log an issue with the link above instead."
+                );
+                //container.container.remove();
+                return;
+              }
+              // create a new a href that opens in a new tab/window and click it - url is data.url
+              let elem = document.createElement("a");
+              elem.setAttribute("href", data.url);
+              elem.setAttribute("target", "_blank");
+              container.container.appendChild(elem);
+              elem.click();
+              await corb.storage.sync.set({
+                diagVersion: corb.runtime.getManifest().version,
+              });
+              container.container.remove();
+            } catch (exc) {
               alert(
                 "an error occured while sending your diag, this could indicate other issues at hand. Please log an issue with the link above instead."
               );
               //container.container.remove();
               return;
             }
-            // create a new a href that opens in a new tab/window and click it - url is data.url
-            let elem = document.createElement("a");
-            elem.setAttribute("href", data.url);
-            elem.setAttribute("target", "_blank");
-            container.container.appendChild(elem);
-            elem.click();
-            await corb.storage.sync.set({
-              diagVersion: corb.runtime.getManifest().version,
-            });
-            container.container.remove();
           })();
         };
       })();

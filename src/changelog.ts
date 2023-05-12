@@ -7,6 +7,23 @@ export interface ChangeLog {
 }
 export const Logs: Array<ChangeLog> = [
   {
+    version: "1.26.1",
+    changes: [
+      {
+        type: "FEATURE",
+        description: "Added Thai language",
+      },
+      {
+        type: "FEATURE",
+        description: "Added auto language identifier where lang does not match fb lang",
+      },
+      {
+        type: "BUGFIX",
+        description: "Changed the debug flow for our easy of assistance",
+      },
+    ],
+  },
+  {
     version: "1.25.11",
     changes: [
       {

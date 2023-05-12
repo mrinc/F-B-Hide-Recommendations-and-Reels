@@ -1,5 +1,5 @@
 import type { Browser } from "webextension-polyfill";
-import { langs as LANGS, LangText, LangType } from "../lib/langs";
+import { langs, LangText, LangType } from "../lib/langs";
 import { Popup } from "../lib/popup";
 declare let chrome: Browser;
 declare let browser: Browser;
@@ -8,17 +8,30 @@ interface MWindow extends Window {
 }
 declare let window: MWindow;
 
-let forceReloadRequested = false;
-let parsedLang: (LangType & LangText) | undefined =
-  LANGS[document.documentElement.lang];
+const LANGS = () => JSON.parse(JSON.stringify(langs));
 
-if (parsedLang !== undefined && document.documentElement.lang !== "en") {
-  for (let key of Object.keys(LANGS.en)) {
-    if ((parsedLang as any)[key] === undefined) {
-      (parsedLang as any)[key] = (LANGS["en"] as any)[key];
+let forceReloadRequested = false;
+let asLang = window.localStorage.getItem("fbhrar_locale") ?? document.documentElement.lang ?? "en";
+let parsedLang: (LangType & LangText) | undefined = LANGS()[asLang];
+const setLANG = (lang: string) => {
+  asLang = lang;
+  parsedLang = LANGS()[lang];
+
+  if (parsedLang !== undefined && lang !== "en") {
+    for (let key of Object.keys(LANGS().en)) {
+      if ((parsedLang as any)[key] === undefined) {
+        (parsedLang as any)[key] = (LANGS()["en"] as any)[key];
+      }
     }
   }
-}
+};
+
+const DEBUG_MODE =
+  window.location.hostname ===
+    "chrome-facebook-hide-ads-and-reels.mrincops.net" &&
+  window.location.pathname.indexOf("/diag/") === 0;
+
+if (DEBUG_MODE) console.warn("DEBUG MODE ENABLED");
 
 const corb = chrome || browser;
 
@@ -72,9 +85,69 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
   }
 };
 
+let definedFeedHolder = false;
+const findFeedHolder = (lang: string) => {
+  if (definedFeedHolder) {
+    return window.document.getElementsByClassName("defined-feed-holder")[0];
+  }
+  setLANG(lang);
+  console.warn("contentCleaner: findFeedHolder: lang: ", lang);
+  for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
+    if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
+      console.log("contentCleaner: try main finder - 1");
+      if (feedHeader.parentNode!.children.length > 3) {
+        definedFeedHolder = true;
+        (feedHeader.parentNode as Element).classList.add("defined-feed-holder");
+        return feedHeader.parentNode as Element;
+      }
+      break;
+    }
+  }
+  for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
+    if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
+      console.log("contentCleaner: try main finder - 2");
+      if ((feedHeader.parentNode as Element).children.length === 2) {
+        if (
+          (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
+          (feedHeader.parentNode as Element).children[1].tagName !== "DIV"
+        )
+          continue;
+        definedFeedHolder = true;
+        (feedHeader.parentNode as Element).children[1].classList.add(
+          "defined-feed-holder"
+        );
+        return (feedHeader.parentNode as Element).children[1];
+      }
+      break;
+    }
+  }
+  for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
+    if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
+      console.log("contentCleaner: try main finder - 3");
+      if ((feedHeader.parentNode as Element).children.length === 3) {
+        if (
+          (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
+          (feedHeader.parentNode as Element).children[1].tagName !== "DIV" ||
+          (feedHeader.parentNode as Element).children[2].tagName !== "DIV" ||
+          (feedHeader.parentNode as Element).children[2].children.length === 0
+        )
+          continue;
+        definedFeedHolder = true;
+        (feedHeader.parentNode as Element).children[2].classList.add(
+          "defined-feed-holder"
+        );
+        return (feedHeader.parentNode as Element).children[2];
+      }
+      break;
+    }
+  }
+
+  return null;
+};
+
+let triedAllLangs = false;
 let errorNotified = false;
 let ccDebounceTimer: NodeJS.Timeout | null = null;
-let definedFeedHolder = false;
 const contentCleaner = (
   key: string | undefined,
   isreRun = false,
@@ -82,7 +155,7 @@ const contentCleaner = (
 ) => {
   if (errorNotified) return;
   if (window.pausecc === true) return;
-  if (window.location.pathname !== "/") {
+  if (window.location.pathname !== "/" && !DEBUG_MODE) {
     console.log(
       "contentCleaner:v" +
         corb.runtime.getManifest().version +
@@ -92,7 +165,12 @@ const contentCleaner = (
     return;
   }
   console.log(
-    "contentCleaner:v" + corb.runtime.getManifest().version + " " + key
+    "contentCleaner:v" +
+      corb.runtime.getManifest().version +
+      " " +
+      key +
+      " lang: " +
+      asLang
   );
   if (forceReloadRequested) {
     forceReloadRequested = false;
@@ -100,81 +178,31 @@ const contentCleaner = (
   }
 
   try {
-    let feed: Element | null = null;
-    if (!definedFeedHolder) {
-      //try method 1
-      for (let feedHeader of window.document.querySelectorAll(
-        'h3[dir="auto"]'
-      )) {
-        if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
-          console.log("contentCleaner: try main finder - 1");
-          if (feedHeader.parentNode!.children.length > 3) {
-            definedFeedHolder = true;
-            (feedHeader.parentNode as Element).classList.add(
-              "defined-feed-holder"
-            );
-          }
-          break;
-        }
-      }
-    }
-    if (!definedFeedHolder) {
-      //try method 2
-      for (let feedHeader of window.document.querySelectorAll(
-        'h3[dir="auto"]'
-      )) {
-        if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
-          console.log("contentCleaner: try main finder - 2");
-          if ((feedHeader.parentNode as Element).children.length === 2) {
-            if (
-              (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
-              (feedHeader.parentNode as Element).children[1].tagName !== "DIV"
-            )
-              continue;
-            definedFeedHolder = true;
-            (feedHeader.parentNode as Element).children[1].classList.add(
-              "defined-feed-holder"
-            );
-          }
-          break;
-        }
-      }
-    }
-    if (!definedFeedHolder) {
-      //try method 3
-      for (let feedHeader of window.document.querySelectorAll(
-        'h3[dir="auto"]'
-      )) {
-        if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
-          console.log("contentCleaner: try main finder - 3");
-          if ((feedHeader.parentNode as Element).children.length === 3) {
-            if (
-              (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
-              (feedHeader.parentNode as Element).children[1].tagName !==
-                "DIV" ||
-              (feedHeader.parentNode as Element).children[2].tagName !==
-                "DIV" ||
-              (feedHeader.parentNode as Element).children[2].children.length ===
-                0
-            )
-              continue;
-            definedFeedHolder = true;
-            (feedHeader.parentNode as Element).children[2].classList.add(
-              "defined-feed-holder"
-            );
-          }
-          break;
-        }
-      }
-    }
-    if (definedFeedHolder) {
-      feed = window.document.getElementsByClassName("defined-feed-holder")[0];
-    }
+    let feed: Element | null = findFeedHolder(
+      asLang
+    );
+    /*feed = null as any;
+    errorNotified = false;*/
 
     if (feed == null) {
+      console.warn(
+        "Cannot find feed with document lang, lets find it another way"
+      );
+      for (let lang of Object.keys(LANGS())) {
+        feed = findFeedHolder(lang);
+        if (feed != null) {
+          console.log("Found feed with lang: " + lang);
+          break;
+        }
+      }
+    }
+    if (feed == null) {
       errorNotified = true;
-      Popup.initWebError();
+      if (!DEBUG_MODE) Popup.initWebError();
       return console.warn("cannot find facebook feed");
+    }
+    if (window.localStorage.getItem("fbhrar_locale") ?? "ns" !== asLang) {
+      window.localStorage.setItem("fbhrar_locale", asLang);
     }
     console.log(
       "contentCleaner:v" +
@@ -434,7 +462,8 @@ if (parsedLang === undefined) {
   if (window.location.pathname === "/") {
     alert(
       "FB Hide Recommendations and Reels: Unknown language! - Please log an issue on our GitHub page to add your language (" +
-        document.documentElement.lang +
+        (window.localStorage.getItem("fbhrar_locale") ??
+          document.documentElement.lang) +
         "). This plugin cannot work without defining a language."
     );
   }
@@ -450,7 +479,10 @@ if (parsedLang === undefined) {
         Popup.initWebStartHome(false);
         return;
       }
-      if (config.version !== corb.runtime.getManifest().version) {
+      if (
+        config.version !== corb.runtime.getManifest().version &&
+        !DEBUG_MODE
+      ) {
         Popup.initWebStartHome(
           config.version !== undefined &&
             config.version !== null &&

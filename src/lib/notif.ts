@@ -24,19 +24,19 @@ export class Notif {
       JSON.stringify(langs.en._system)
     ) as SystemConfigSystem;
 
-    if (document.documentElement.lang !== "en") {
+    if ((window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang) !== "en") {
       if (
-        (langs as any)[document.documentElement.lang] !== undefined &&
-        (langs as any)[document.documentElement.lang]._system !== undefined
+        (langs as any)[(window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang)] !== undefined &&
+        (langs as any)[(window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang)]._system !== undefined
       ) {
         for (let key of Object.keys(langs.en._system!)) {
           if (
-            (langs as any)[document.documentElement.lang]._system[key] !==
+            (langs as any)[(window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang)]._system[key] !==
             undefined
           ) {
             (sysConfig as any)[key] = JSON.parse(
               JSON.stringify(
-                (langs as any)[document.documentElement.lang]._system[key]
+                (langs as any)[(window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang)]._system[key]
               )
             );
           }
