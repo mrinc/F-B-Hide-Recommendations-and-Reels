@@ -345,4 +345,17 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     answeredQuestion: "beantwoordde deze vraag.",
     createAPost: "Maak een bericht aan",
   },
+  th: {
+    name: "Thai",
+    newsFeedPosts: "โพสต์บนฟีดข่าว",
+    reelsBlock: "Reels และวิดีโอสั้น",
+    commentedOn: "ได้แสดงความคิดเห็น",
+    commentedOnFriend: "แสดงความคิดเห็น.",
+    peopleKnow: "บุคคลที่คุณอาจจะรู้จัก",
+    friendRequests: "คำขอเป็นเพื่อน",
+    suggested: "แนะนำสำหรับคุณ",
+    tagged: "ถูกแท็ก",
+    answeredQuestion: "ตอบคำถามนี้",
+    createAPost: "สร้างโพสต์",
+    }
 };
