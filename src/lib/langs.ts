@@ -357,5 +357,10 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     tagged: "ถูกแท็ก",
     answeredQuestion: "ตอบคำถามนี้",
     createAPost: "สร้างโพสต์",
-    }
+    },
+  sv: {
+    name: "Swedish",
+    reelsBlock: "Reels och korta videor",
+    suggested: "Förslag för dig",
+  },
 };
