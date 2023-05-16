@@ -11,7 +11,10 @@ declare let window: MWindow;
 const LANGS = () => JSON.parse(JSON.stringify(langs));
 
 let forceReloadRequested = false;
-let asLang = window.localStorage.getItem("fbhrar_locale") ?? document.documentElement.lang ?? "en";
+let asLang =
+  window.localStorage.getItem("fbhrar_locale") ??
+  document.documentElement.lang ??
+  "en";
 let parsedLang: (LangType & LangText) | undefined = LANGS()[asLang];
 const setLANG = (lang: string) => {
   asLang = lang;
@@ -88,12 +91,17 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
 let definedFeedHolder = false;
 const findFeedHolder = (lang: string) => {
   if (definedFeedHolder) {
-    return window.document.getElementsByClassName("defined-feed-holder")[0];
+    let newsFeedHolder = window.document.getElementsByClassName(
+      "defined-feed-holder"
+    );
+    if (newsFeedHolder.length > 0) return newsFeedHolder[0];
+    definedFeedHolder = false;
+    console.warn("Couldnt find defined-feed-holder, trying again");
   }
   setLANG(lang);
   console.warn("contentCleaner: findFeedHolder: lang: ", lang);
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-    if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
+    if (feedHeader.innerHTML.toLowerCase() === parsedLang!.newsFeedPosts!.toLowerCase()) {
       console.log("contentCleaner: try main finder - 1");
       if (feedHeader.parentNode!.children.length > 3) {
         definedFeedHolder = true;
@@ -104,7 +112,7 @@ const findFeedHolder = (lang: string) => {
     }
   }
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-    if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
+    if (feedHeader.innerHTML.toLowerCase() === parsedLang!.newsFeedPosts!.toLowerCase()) {
       console.log("contentCleaner: try main finder - 2");
       if ((feedHeader.parentNode as Element).children.length === 2) {
         if (
@@ -122,7 +130,7 @@ const findFeedHolder = (lang: string) => {
     }
   }
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-    if (feedHeader.innerHTML === parsedLang!.newsFeedPosts) {
+    if (feedHeader.innerHTML.toLowerCase() === parsedLang!.newsFeedPosts!.toLowerCase()) {
       console.log("contentCleaner: try main finder - 3");
       if ((feedHeader.parentNode as Element).children.length === 3) {
         if (
@@ -178,9 +186,7 @@ const contentCleaner = (
   }
 
   try {
-    let feed: Element | null = findFeedHolder(
-      asLang
-    );
+    let feed: Element | null = findFeedHolder(asLang);
     /*feed = null as any;
     errorNotified = false;*/
 
@@ -198,6 +204,15 @@ const contentCleaner = (
     }
     //feed = null as any;
     if (feed == null) {
+      if (!triedAllLangs) {
+        window.pausecc = true;
+        setTimeout(() => {
+          window.pausecc = false;
+          triedAllLangs = true;
+        }, 5000);
+        console.warn("Cannot find feed with any lang, trying again one more time.");
+        return;
+      }
       errorNotified = true;
       if (!DEBUG_MODE) Popup.initWebError();
       return console.warn("cannot find facebook feed");
@@ -237,7 +252,7 @@ const contentCleaner = (
         result.ignored += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(parsedLang!.friendRequests!) >= 0) {
+      if (elem.innerHTML.toLowerCase().indexOf(parsedLang!.friendRequests!.toLowerCase()) >= 0) {
         if (config.friendRequests !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-reels-redact");
@@ -249,7 +264,7 @@ const contentCleaner = (
         result.redacted.reels += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(parsedLang!.reelsBlock!) >= 0) {
+      if (elem.innerHTML.toLowerCase().indexOf(parsedLang!.reelsBlock!.toLowerCase()) >= 0) {
         if (config.reels !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-reels-redact");
@@ -261,7 +276,7 @@ const contentCleaner = (
         result.redacted.reels += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(parsedLang!.containsReels!) >= 0) {
+      if (elem.innerHTML.toLowerCase().indexOf(parsedLang!.containsReels!.toLowerCase()) >= 0) {
         if (config.containsReels !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-reels-redact");
@@ -273,7 +288,7 @@ const contentCleaner = (
         result.redacted.reels += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(" " + parsedLang!.commentedOn) >= 0) {
+      if (elem.innerHTML.toLowerCase().indexOf(" " + parsedLang!.commentedOn!.toLowerCase()) >= 0) {
         if (config.commentedOn !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-commentedOn-redact");
@@ -285,7 +300,7 @@ const contentCleaner = (
         result.redacted.commentedOn += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(" " + parsedLang!.commentedOnFriend) >= 0) {
+      if (elem.innerHTML.toLowerCase().indexOf(" " + parsedLang!.commentedOnFriend!.toLowerCase()) >= 0) {
         if (config.commentedOnFriend !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-commentedOn-redact");
@@ -297,7 +312,7 @@ const contentCleaner = (
         result.redacted.commentedOn += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(" " + parsedLang!.tagged) >= 0) {
+      if (elem.innerHTML.toLowerCase().indexOf(" " + parsedLang!.tagged!.toLowerCase()) >= 0) {
         if (config.tagged !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-answeredQuestion-redact");
@@ -309,7 +324,7 @@ const contentCleaner = (
         result.redacted.answeredQuestion += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(" " + parsedLang!.answeredQuestion) >= 0) {
+      if (elem.innerHTML.toLowerCase().indexOf(" " + parsedLang!.answeredQuestion!.toLowerCase()) >= 0) {
         if (config.answeredQuestion !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-answeredQuestion-redact");
@@ -321,7 +336,7 @@ const contentCleaner = (
         result.redacted.answeredQuestion += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(parsedLang!.peopleKnow!) >= 0) {
+      if (elem.innerHTML.toLowerCase().indexOf(parsedLang!.peopleKnow!.toLowerCase()) >= 0) {
         if (config.peopleMayKnow !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-peopleMayKnow-redact");
@@ -353,7 +368,7 @@ const contentCleaner = (
         result.redacted.ads += 1;
         continue;
       }
-      if (elem.innerHTML.indexOf(">" + parsedLang!.suggested + "<") >= 0) {
+      if (elem.innerHTML.toLowerCase().indexOf(">" + parsedLang!.suggested!.toLowerCase() + "<") >= 0) {
         if (config.suggestions !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-suggestions-redact");

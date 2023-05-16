@@ -84,7 +84,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     reelsBlock: "Reels and short videos",
     commentedOn: "commented on a post from",
     commentedOnFriend: "commented.",
-    peopleKnow: "People You May Know",
+    peopleKnow: "People you may know",
     friendRequests: "Friend Requests",
     suggested: "Suggested for you",
     tagged: "was tagged.",
