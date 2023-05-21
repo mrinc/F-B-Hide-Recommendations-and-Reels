@@ -2,6 +2,7 @@
 
 rm -rfv dist
 rm -rfv lib
+rm -rfv release
 mkdir lib
 mkdir dist
 mkdir dist/unpacked
@@ -60,5 +61,8 @@ if [ "$1" = "firefox" ] || [ -z "$1" ]; then
   zip "dist/packed/firefox.v${PKVERSION}.zip" -j ./dist/unpacked/firefox/*
 fi
 
-zip "dist/packed/source.latest.zip" -r ./*
-zip "dist/packed/source.v${PKVERSION}.zip" -r ./*
+# if [ -z "$1" ]; then
+#   wget https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/archive/refs/tags/v${PKVERSION}.zip
+#   mv v${PKVERSION}.zip "dist/packed/source.latest.zip"
+#   cp "dist/packed/source.latest.zip" "dist/packed/source.v${PKVERSION}.zip"
+# fi
