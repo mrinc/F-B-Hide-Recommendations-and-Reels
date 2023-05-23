@@ -101,7 +101,10 @@ const findFeedHolder = (lang: string) => {
   setLANG(lang);
   console.warn("contentCleaner: findFeedHolder: lang: ", lang);
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-    if (feedHeader.innerHTML.toLowerCase() === parsedLang!.newsFeedPosts!.toLowerCase()) {
+    if (
+      feedHeader.innerHTML.toLowerCase() ===
+      parsedLang!.newsFeedPosts!.toLowerCase()
+    ) {
       console.log("contentCleaner: try main finder - 1");
       if (feedHeader.parentNode!.children.length > 3) {
         definedFeedHolder = true;
@@ -112,7 +115,10 @@ const findFeedHolder = (lang: string) => {
     }
   }
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-    if (feedHeader.innerHTML.toLowerCase() === parsedLang!.newsFeedPosts!.toLowerCase()) {
+    if (
+      feedHeader.innerHTML.toLowerCase() ===
+      parsedLang!.newsFeedPosts!.toLowerCase()
+    ) {
       console.log("contentCleaner: try main finder - 2");
       if ((feedHeader.parentNode as Element).children.length === 2) {
         if (
@@ -130,7 +136,10 @@ const findFeedHolder = (lang: string) => {
     }
   }
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-    if (feedHeader.innerHTML.toLowerCase() === parsedLang!.newsFeedPosts!.toLowerCase()) {
+    if (
+      feedHeader.innerHTML.toLowerCase() ===
+      parsedLang!.newsFeedPosts!.toLowerCase()
+    ) {
       console.log("contentCleaner: try main finder - 3");
       if ((feedHeader.parentNode as Element).children.length === 3) {
         if (
@@ -210,7 +219,18 @@ const contentCleaner = (
           window.pausecc = false;
           triedAllLangs = true;
         }, 5000);
-        console.warn("Cannot find feed with any lang, trying again one more time.");
+        console.warn(
+          "Cannot find feed with any lang, trying again one more time."
+        );
+        return;
+      }
+      if (window.location.pathname !== "/" && !DEBUG_MODE) {
+        console.log(
+          "contentCleaner:v" +
+            corb.runtime.getManifest().version +
+            " - paused as not on home page2"
+        );
+        definedFeedHolder = false;
         return;
       }
       errorNotified = true;
@@ -252,7 +272,11 @@ const contentCleaner = (
         result.ignored += 1;
         continue;
       }
-      if (elem.innerHTML.toLowerCase().indexOf(parsedLang!.friendRequests!.toLowerCase()) >= 0) {
+      if (
+        elem.innerHTML
+          .toLowerCase()
+          .indexOf(parsedLang!.friendRequests!.toLowerCase()) >= 0
+      ) {
         if (config.friendRequests !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-reels-redact");
@@ -264,7 +288,11 @@ const contentCleaner = (
         result.redacted.reels += 1;
         continue;
       }
-      if (elem.innerHTML.toLowerCase().indexOf(parsedLang!.reelsBlock!.toLowerCase()) >= 0) {
+      if (
+        elem.innerHTML
+          .toLowerCase()
+          .indexOf(parsedLang!.reelsBlock!.toLowerCase()) >= 0
+      ) {
         if (config.reels !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-reels-redact");
@@ -276,7 +304,11 @@ const contentCleaner = (
         result.redacted.reels += 1;
         continue;
       }
-      if (elem.innerHTML.toLowerCase().indexOf(parsedLang!.containsReels!.toLowerCase()) >= 0) {
+      if (
+        elem.innerHTML
+          .toLowerCase()
+          .indexOf(parsedLang!.containsReels!.toLowerCase()) >= 0
+      ) {
         if (config.containsReels !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-reels-redact");
@@ -288,7 +320,11 @@ const contentCleaner = (
         result.redacted.reels += 1;
         continue;
       }
-      if (elem.innerHTML.toLowerCase().indexOf(" " + parsedLang!.commentedOn!.toLowerCase()) >= 0) {
+      if (
+        elem.innerHTML
+          .toLowerCase()
+          .indexOf(" " + parsedLang!.commentedOn!.toLowerCase()) >= 0
+      ) {
         if (config.commentedOn !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-commentedOn-redact");
@@ -300,7 +336,11 @@ const contentCleaner = (
         result.redacted.commentedOn += 1;
         continue;
       }
-      if (elem.innerHTML.toLowerCase().indexOf(" " + parsedLang!.commentedOnFriend!.toLowerCase()) >= 0) {
+      if (
+        elem.innerHTML
+          .toLowerCase()
+          .indexOf(" " + parsedLang!.commentedOnFriend!.toLowerCase()) >= 0
+      ) {
         if (config.commentedOnFriend !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-commentedOn-redact");
@@ -312,7 +352,11 @@ const contentCleaner = (
         result.redacted.commentedOn += 1;
         continue;
       }
-      if (elem.innerHTML.toLowerCase().indexOf(" " + parsedLang!.tagged!.toLowerCase()) >= 0) {
+      if (
+        elem.innerHTML
+          .toLowerCase()
+          .indexOf(" " + parsedLang!.tagged!.toLowerCase()) >= 0
+      ) {
         if (config.tagged !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-answeredQuestion-redact");
@@ -324,7 +368,11 @@ const contentCleaner = (
         result.redacted.answeredQuestion += 1;
         continue;
       }
-      if (elem.innerHTML.toLowerCase().indexOf(" " + parsedLang!.answeredQuestion!.toLowerCase()) >= 0) {
+      if (
+        elem.innerHTML
+          .toLowerCase()
+          .indexOf(" " + parsedLang!.answeredQuestion!.toLowerCase()) >= 0
+      ) {
         if (config.answeredQuestion !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-answeredQuestion-redact");
@@ -336,7 +384,11 @@ const contentCleaner = (
         result.redacted.answeredQuestion += 1;
         continue;
       }
-      if (elem.innerHTML.toLowerCase().indexOf(parsedLang!.peopleKnow!.toLowerCase()) >= 0) {
+      if (
+        elem.innerHTML
+          .toLowerCase()
+          .indexOf(parsedLang!.peopleKnow!.toLowerCase()) >= 0
+      ) {
         if (config.peopleMayKnow !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-peopleMayKnow-redact");
@@ -368,7 +420,11 @@ const contentCleaner = (
         result.redacted.ads += 1;
         continue;
       }
-      if (elem.innerHTML.toLowerCase().indexOf(">" + parsedLang!.suggested!.toLowerCase() + "<") >= 0) {
+      if (
+        elem.innerHTML
+          .toLowerCase()
+          .indexOf(">" + parsedLang!.suggested!.toLowerCase() + "<") >= 0
+      ) {
         if (config.suggestions !== true) {
           elem.classList.add("no-redact-elem");
           elem.classList.add("no-suggestions-redact");

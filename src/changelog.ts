@@ -7,6 +7,15 @@ export interface ChangeLog {
 }
 export const Logs: Array<ChangeLog> = [
   {
+    version: "1.26.4",
+    changes: [
+      {
+        type: "BUGFIX",
+        description: "In the case where the page changes during load, before we show the error popup... lets just check the url again and fail silently. Else continue with error popup.",
+      },
+    ],
+  },
+  {
     version: "1.26.1",
     changes: [
       {
