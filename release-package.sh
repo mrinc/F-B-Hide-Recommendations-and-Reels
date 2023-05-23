@@ -13,10 +13,10 @@ mkdir release/packed
 PKVERSION=$1
 
 rm v${PKVERSION}.zip
-wget https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/archive/refs/tags/v${PKVERSION}.zip
+wget https://github.com/mrinc/FB-Hide-Recommendations-and-Reels/archive/refs/tags/v${PKVERSION}.zip
 unzip v${PKVERSION}.zip -d ./release/unzip
-SRC_DIR=./release/unzip/Facebook-Hide-Recommendations-and-Reels-${PKVERSION}/src/
-cp -r ./release/unzip/Facebook-Hide-Recommendations-and-Reels-${PKVERSION}/* ./release/
+SRC_DIR=./release/unzip/FB-Hide-Recommendations-and-Reels-${PKVERSION}/src/
+cp -r ./release/unzip/FB-Hide-Recommendations-and-Reels-${PKVERSION}/* ./release/
 cp ${SRC_DIR}* ./release/src/
 mv v${PKVERSION}.zip ./release/packed/source-v${PKVERSION}.zip
 
