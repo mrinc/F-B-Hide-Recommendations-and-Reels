@@ -359,7 +359,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     answeredQuestion: "ตอบคำถามนี้",
     createAPost: "สร้างโพสต์",
   },
-  zh: {
+  'zh-Hans': {
     name: "Chinese (Simplified)",
     newsFeedPosts: "首頁",
     reelsBlock: "Reels 和短视频",
