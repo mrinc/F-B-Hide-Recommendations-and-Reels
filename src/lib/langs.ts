@@ -381,6 +381,8 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
   },
   sv: {
     name: "Swedish",
+    newsFeedPosts: "Inlägg i nyhetsflödet",
+    commentedOnFriend: "har kommenterat.",
     reelsBlock: "Reels och korta videor",
     suggested: "Förslag för dig",
   },
