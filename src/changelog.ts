@@ -21,6 +21,10 @@ export const Logs: Array<ChangeLog> = [
         type: "IMPROVEMENT",
         description: "Added Chinese (Traditional, Taiwan)",
       },
+      {
+        type: "IMPROVEMENT",
+        description: "Added new style FB feed finder",
+      },
     ],
   },
   {

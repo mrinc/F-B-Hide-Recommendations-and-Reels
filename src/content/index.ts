@@ -27,6 +27,10 @@ const setLANG = (lang: string) => {
       }
     }
   }
+
+  if (parsedLang === undefined) {
+    parsedLang = LANGS().en;
+  }
 };
 
 const DEBUG_MODE =
@@ -154,6 +158,28 @@ const findFeedHolder = (lang: string) => {
           "defined-feed-holder"
         );
         return (feedHeader.parentNode as Element).children[2];
+      }
+      break;
+    }
+  }
+  for (let feedHeader of window.document.querySelectorAll('h2[dir="auto"]')) {
+    if (
+      feedHeader.innerHTML.toLowerCase() ===
+      parsedLang!.newsFeedPosts!.toLowerCase()
+    ) {
+      console.log("contentCleaner: try main finder - 4");
+      if ((feedHeader.parentNode as Element).children.length === 2) {
+        if (
+          (feedHeader.parentNode as Element).children[0].tagName !== "H2" ||
+          (feedHeader.parentNode as Element).children[1].tagName !== "DIV" ||
+          (feedHeader.parentNode as Element).children[1].children.length === 0
+        )
+          continue;
+        definedFeedHolder = true;
+        (feedHeader.parentNode as Element).children[1].classList.add(
+          "defined-feed-holder"
+        );
+        return (feedHeader.parentNode as Element).children[1];
       }
       break;
     }
