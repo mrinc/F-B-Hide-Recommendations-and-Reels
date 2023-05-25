@@ -542,7 +542,7 @@ const contentCleaner = (
   }
 };
 
-if (parsedLang === undefined) {
+/*if (parsedLang === undefined) {
   // unknown lang
   console.warn("Unknown lang!");
   if (window.location.pathname === "/") {
@@ -553,7 +553,7 @@ if (parsedLang === undefined) {
         "). This plugin cannot work without defining a language."
     );
   }
-} else
+} else*/
   document.body.onload = () => {
     corb.storage.sync.get("data").then(async (items) => {
       let config = (items || {}).data || {};

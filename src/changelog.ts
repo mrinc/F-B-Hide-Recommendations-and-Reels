@@ -15,7 +15,11 @@ export const Logs: Array<ChangeLog> = [
       },
       {
         type: "IMPROVEMENT",
-        description: "Added Chinese language (basic - need more information)",
+        description: "Added Chinese (Simplified)",
+      },
+      {
+        type: "IMPROVEMENT",
+        description: "Added Chinese (Traditional, Taiwan)",
       },
     ],
   },
