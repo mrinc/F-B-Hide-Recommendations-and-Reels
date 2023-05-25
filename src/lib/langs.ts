@@ -139,7 +139,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
         notif: {
           text: "You've got a new version",
           colour: "green",
-        }
+        },
       },
       formFieldHello: {
         title: "Configuration",
@@ -160,7 +160,8 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
         colour: "green",
         title: "We are sorry, but something went wrong.",
         desc: "We were unable to find the feed elements on this page.<br />This plugin cannot function without knowing where the feed is.<br />Please click the button below to send a support diagnostic.",
-        desc2: "When you send a support diagnostic, we'll capture a snapshot of the HTML on the page to help us identify and resolve any issues. We'll discard the diagnostic once the issue is fixed or after 30 days, whichever comes first. We won't use or share any information in the diagnostic for any other purposes.<br />After you send the diagnostic, we'll create an issue that you can follow if you're interested (Github). Once we resolve the issue and release a new version of the plugin, your browser will automatically update and the plugin will start working.<br />You don't need to uninstall the plugin after sending a diagnostic. It will remain inactive until the new version is released and it attempts to find the feed again.",
+        desc2:
+          "When you send a support diagnostic, we'll capture a snapshot of the HTML on the page to help us identify and resolve any issues. We'll discard the diagnostic once the issue is fixed or after 30 days, whichever comes first. We won't use or share any information in the diagnostic for any other purposes.<br />After you send the diagnostic, we'll create an issue that you can follow if you're interested (Github). Once we resolve the issue and release a new version of the plugin, your browser will automatically update and the plugin will start working.<br />You don't need to uninstall the plugin after sending a diagnostic. It will remain inactive until the new version is released and it attempts to find the feed again.",
       },
       form: {
         title: "Configure FB Hide Recommendations and Reels",
@@ -357,7 +358,27 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     tagged: "ถูกแท็ก",
     answeredQuestion: "ตอบคำถามนี้",
     createAPost: "สร้างโพสต์",
-    },
+  },
+  "zh-Hans": {
+    name: "Chinese (Simplified)",
+    newsFeedPosts: "动态消息帖子",
+    reelsBlock: "Reels 和短视频",
+    peopleKnow: "你可能認識的朋友",
+    suggested: "为你推荐",
+    tagged: "被标记了。",
+    containsReels: "Reels",
+    createAPost: "建立貼文",
+  },
+  "zh-TW": {
+    name: "Chinese (Traditional, Taiwan)",
+    newsFeedPosts: "動態消息貼文",
+    reelsBlock: "連續短片和短片",
+    commentedOnFriend: "已留言回應。",
+    suggested: "為你推薦",
+    tagged: "被標註在這則內容中。",
+    containsReels: "Reels",
+    createAPost: "建立貼文",
+  },
   sv: {
     name: "Swedish",
     reelsBlock: "Reels och korta videor",

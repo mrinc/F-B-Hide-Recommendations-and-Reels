@@ -7,6 +7,27 @@ export interface ChangeLog {
 }
 export const Logs: Array<ChangeLog> = [
   {
+    version: "1.26.5",
+    changes: [
+      {
+        type: "BUGFIX",
+        description: "Changed the order of retrying to find the feed.",
+      },
+      {
+        type: "IMPROVEMENT",
+        description: "Added Chinese (Simplified)",
+      },
+      {
+        type: "IMPROVEMENT",
+        description: "Added Chinese (Traditional, Taiwan)",
+      },
+      {
+        type: "IMPROVEMENT",
+        description: "Added new style FB feed finder",
+      },
+    ],
+  },
+  {
     version: "1.26.4",
     changes: [
       {

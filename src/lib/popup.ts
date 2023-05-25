@@ -242,13 +242,29 @@ export class Popup {
               .getElementById("fbhrr-goConfigure")!
               .setAttribute("disabled", "");
             iframeDoc.getElementById("fbhrr-goConfigure")!.innerHTML =
+              "gathering data...";
+            await new Promise(async (r) => {
+              let counter = 0;
+              let scrollY = 10028;
+              while (counter < 30 && window.scrollY !== scrollY) {
+                window.scrollTo(0, 10028);
+                await new Promise((r) => setTimeout(r, 1000));
+                counter++;
+                "gathering data... (" + counter + "s/30s)";
+              }
+            });
+            iframeDoc.getElementById("fbhrr-goConfigure")!.innerHTML =
               "sending...";
+
             const headers = new Headers();
             headers.append("Content-Type", "application/json");
 
             const body = {
-              html: `<html>${document.documentElement.innerHTML.replace('</body>', '<script>document.getElementById("fbhrr-client").remove();</script></body>')}</html>`,
-              lang: document.documentElement.lang + ':' + (window.localStorage.getItem('fbhrar_locale')??'ns'),
+              html: `<html>${document.documentElement.innerHTML}</html>`,
+              lang:
+                document.documentElement.lang +
+                ":" +
+                (window.localStorage.getItem("fbhrar_locale") ?? "ns"),
             };
 
             const options: any = {

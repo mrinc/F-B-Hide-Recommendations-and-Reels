@@ -27,6 +27,10 @@ const setLANG = (lang: string) => {
       }
     }
   }
+
+  if (parsedLang === undefined) {
+    parsedLang = LANGS().en;
+  }
 };
 
 const DEBUG_MODE =
@@ -158,11 +162,34 @@ const findFeedHolder = (lang: string) => {
       break;
     }
   }
+  for (let feedHeader of window.document.querySelectorAll('h2[dir="auto"]')) {
+    if (
+      feedHeader.innerHTML.toLowerCase() ===
+      parsedLang!.newsFeedPosts!.toLowerCase()
+    ) {
+      console.log("contentCleaner: try main finder - 4");
+      if ((feedHeader.parentNode as Element).children.length === 2) {
+        if (
+          (feedHeader.parentNode as Element).children[0].tagName !== "H2" ||
+          (feedHeader.parentNode as Element).children[1].tagName !== "DIV" ||
+          (feedHeader.parentNode as Element).children[1].children.length === 0
+        )
+          continue;
+        definedFeedHolder = true;
+        (feedHeader.parentNode as Element).children[1].classList.add(
+          "defined-feed-holder"
+        );
+        return (feedHeader.parentNode as Element).children[1];
+      }
+      break;
+    }
+  }
 
   return null;
 };
 
 let triedAllLangs = false;
+let triedTwice = false;
 let errorNotified = false;
 let ccDebounceTimer: NodeJS.Timeout | null = null;
 const contentCleaner = (
@@ -213,17 +240,6 @@ const contentCleaner = (
     }
     //feed = null as any;
     if (feed == null) {
-      if (!triedAllLangs) {
-        window.pausecc = true;
-        setTimeout(() => {
-          window.pausecc = false;
-          triedAllLangs = true;
-        }, 5000);
-        console.warn(
-          "Cannot find feed with any lang, trying again one more time."
-        );
-        return;
-      }
       if (window.location.pathname !== "/" && !DEBUG_MODE) {
         console.log(
           "contentCleaner:v" +
@@ -233,6 +249,28 @@ const contentCleaner = (
         definedFeedHolder = false;
         return;
       }
+      if (!triedAllLangs) {
+        window.pausecc = true;
+        setTimeout(() => {
+          window.pausecc = false;
+          triedAllLangs = true;
+        }, 5000);
+        console.warn(
+          "Cannot find feed with default lang (and any), trying again to find with any lang after 5s."
+        );
+        return;
+      }
+      if (!triedTwice) {
+        window.pausecc = true;
+        setTimeout(() => {
+          window.pausecc = false;
+          triedTwice = true;
+        }, 5000);
+        console.warn(
+          "Cannot find feed with any lang, trying again one more time after 5s."
+        );
+        return;
+      }
       errorNotified = true;
       if (!DEBUG_MODE) Popup.initWebError();
       return console.warn("cannot find facebook feed");
@@ -240,6 +278,8 @@ const contentCleaner = (
     if (window.localStorage.getItem("fbhrar_locale") ?? "ns" !== asLang) {
       window.localStorage.setItem("fbhrar_locale", asLang);
     }
+    triedAllLangs = false;
+    triedTwice = false;
     console.log(
       "contentCleaner:v" +
         corb.runtime.getManifest().version +
@@ -528,7 +568,7 @@ const contentCleaner = (
   }
 };
 
-if (parsedLang === undefined) {
+/*if (parsedLang === undefined) {
   // unknown lang
   console.warn("Unknown lang!");
   if (window.location.pathname === "/") {
@@ -539,7 +579,7 @@ if (parsedLang === undefined) {
         "). This plugin cannot work without defining a language."
     );
   }
-} else
+} else*/
   document.body.onload = () => {
     corb.storage.sync.get("data").then(async (items) => {
       let config = (items || {}).data || {};
