@@ -362,7 +362,11 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
   zh: {
     name: "Chinese (Simplified)",
     newsFeedPosts: "首頁",
+    reelsBlock: "Reels 和短视频",
     peopleKnow: "你可能認識的朋友",
+    suggested: "为你推荐",
+    tagged: "被标记了。",
+    containsReels: "Reels",
     createAPost: "建立貼文",
   },
 };
