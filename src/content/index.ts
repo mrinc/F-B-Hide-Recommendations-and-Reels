@@ -163,6 +163,7 @@ const findFeedHolder = (lang: string) => {
 };
 
 let triedAllLangs = false;
+let triedTwice = false;
 let errorNotified = false;
 let ccDebounceTimer: NodeJS.Timeout | null = null;
 const contentCleaner = (
@@ -213,17 +214,6 @@ const contentCleaner = (
     }
     //feed = null as any;
     if (feed == null) {
-      if (!triedAllLangs) {
-        window.pausecc = true;
-        setTimeout(() => {
-          window.pausecc = false;
-          triedAllLangs = true;
-        }, 5000);
-        console.warn(
-          "Cannot find feed with any lang, trying again one more time."
-        );
-        return;
-      }
       if (window.location.pathname !== "/" && !DEBUG_MODE) {
         console.log(
           "contentCleaner:v" +
@@ -233,6 +223,28 @@ const contentCleaner = (
         definedFeedHolder = false;
         return;
       }
+      if (!triedAllLangs) {
+        window.pausecc = true;
+        setTimeout(() => {
+          window.pausecc = false;
+          triedAllLangs = true;
+        }, 5000);
+        console.warn(
+          "Cannot find feed with default lang (and any), trying again to find with any lang after 5s."
+        );
+        return;
+      }
+      if (!triedTwice) {
+        window.pausecc = true;
+        setTimeout(() => {
+          window.pausecc = false;
+          triedTwice = true;
+        }, 5000);
+        console.warn(
+          "Cannot find feed with any lang, trying again one more time after 5s."
+        );
+        return;
+      }
       errorNotified = true;
       if (!DEBUG_MODE) Popup.initWebError();
       return console.warn("cannot find facebook feed");
@@ -240,6 +252,8 @@ const contentCleaner = (
     if (window.localStorage.getItem("fbhrar_locale") ?? "ns" !== asLang) {
       window.localStorage.setItem("fbhrar_locale", asLang);
     }
+    triedAllLangs = false;
+    triedTwice = false;
     console.log(
       "contentCleaner:v" +
         corb.runtime.getManifest().version +
