@@ -23,6 +23,10 @@ export const Logs: Array<ChangeLog> = [
       },
       {
         type: "IMPROVEMENT",
+        description: "Added Swedish",
+      },
+      {
+        type: "IMPROVEMENT",
         description: "Added new style FB feed finder",
       },
     ],
@@ -32,7 +36,8 @@ export const Logs: Array<ChangeLog> = [
     changes: [
       {
         type: "BUGFIX",
-        description: "In the case where the page changes during load, before we show the error popup... lets just check the url again and fail silently. Else continue with error popup.",
+        description:
+          "In the case where the page changes during load, before we show the error popup... lets just check the url again and fail silently. Else continue with error popup.",
       },
     ],
   },
@@ -45,7 +50,8 @@ export const Logs: Array<ChangeLog> = [
       },
       {
         type: "FEATURE",
-        description: "Added auto language identifier where lang does not match fb lang",
+        description:
+          "Added auto language identifier where lang does not match fb lang",
       },
       {
         type: "BUGFIX",
@@ -77,7 +83,7 @@ export const Logs: Array<ChangeLog> = [
         type: "FEATURE",
         description:
           "Added new/welcome page on load to handle config and new settings",
-      }
+      },
     ],
   },
 ];

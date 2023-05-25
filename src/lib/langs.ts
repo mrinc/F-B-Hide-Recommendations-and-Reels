@@ -379,4 +379,11 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     containsReels: "Reels",
     createAPost: "建立貼文",
   },
+  sv: {
+    name: "Swedish",
+    newsFeedPosts: "Inlägg i nyhetsflödet",
+    commentedOnFriend: "har kommenterat.",
+    reelsBlock: "Reels och korta videor",
+    suggested: "Förslag för dig",
+  },
 };
