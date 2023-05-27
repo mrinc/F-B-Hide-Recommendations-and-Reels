@@ -38,7 +38,7 @@ jobs:
         id: version
 
       # Just to make sure it builds
-      - run: bash ./build-package.sh
+      - run: bash ./build.sh
 
       - name: Create tag for release
         id: tag_version
