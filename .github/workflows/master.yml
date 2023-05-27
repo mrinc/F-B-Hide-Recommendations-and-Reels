@@ -19,13 +19,13 @@ jobs:
 
       - name: semver
         id: semver
-        uses: paulhatch/semantic-version@v5.0.3
+        uses: paulhatch/semantic-version@v5
         with:
           tag_prefix: "v"
           branch: master
           major_pattern: "(MAJOR)"
           minor_pattern: "(MINOR)"
-          format: "${major}.${minor}.${patch}-rc${increment}"
+          version_format: "${major}.${minor}.${patch}-rc${increment}"
           change_path: "./"
           bump_each_commit: true
           #enable_prerelease_mode: true

@@ -18,17 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: semver
-        id: semver
-        uses: paulhatch/semantic-version@v5.0.3
-        with:
-          tag_prefix: "v"
-          branch: master
-          major_pattern: "(MAJOR)"
-          minor_pattern: "(MINOR)"
-          format: "${major}.${minor}.${patch}"
-          change_path: "./"
-          bump_each_commit: true
-          namespace: ""
+        run: echo "version=${GITHUB_REF#refs/tags/v} >> $GITHUB_OUTPUT"
 
       - name: output version
         run: |
