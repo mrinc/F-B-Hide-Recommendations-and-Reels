@@ -27,7 +27,7 @@ jobs:
       - run: echo "version=${{ steps.semver.outputs.version }} >> $GITHUB_OUTPUT"
         id: version
 
-      - run: bash ./build-package.sh
+      - run: bash ./build.sh
 
       - uses: actions/upload-artifact@v3
         with:
