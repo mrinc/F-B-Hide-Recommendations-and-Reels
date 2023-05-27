@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      version: ${{ steps.version.outputs.version }}
+      version: ${{ steps.semver.outputs.version }}
 
     steps:
       - uses: actions/checkout@v3
@@ -81,46 +81,10 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: chrome-latest
-          path: dist/packed/chrome.latest.zip
+          name: source-v${{ steps.semver.outputs.version }}
+          path: dist/source.v${{ steps.semver.outputs.version }}.zip
           if-no-files-found: error
           retention-days: 7
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: firefox-latest
-          path: dist/packed/firefox.latest.zip
-          if-no-files-found: error
-          retention-days: 7
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: edge-latest
-          path: dist/packed/edge.latest.zip
-          if-no-files-found: error
-          retention-days: 7
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: chrome-unpacked
-          path: dist/unpacked/chrome/*
-          if-no-files-found: error
-          retention-days: 7
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: firefox-unpacked
-          path: dist/unpacked/firefox/*
-          if-no-files-found: error
-          retention-days: 7
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: edge-unpacked
-          path: dist/unpacked/edge/*
-          if-no-files-found: error
-          retention-days: 7
-
 
   publish-chrome:
     needs: build
@@ -130,7 +94,7 @@ jobs:
       - name: Download dists
         uses: actions/download-artifact@v3
         with:
-          name: chrome-latest
+          name: chrome-v${{ needs.build.outputs.version }}
 
       - name: Upload & release Chrome Extension
         uses: mnao305/chrome-extension-upload@3.0.0
@@ -147,39 +111,20 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Download source
+        uses: actions/download-artifact@v3
+        with:
+          name: source-v${{ needs.build.outputs.version }}
+
       - name: Download dists
         uses: actions/download-artifact@v3
         with:
-          name: firefox-unpacked
-          path: unpacked/
+          name: firefox-v${{ needs.build.outputs.version }}
 
-      - name: Build Firefox Extension
-        uses: kewisch/action-web-ext@v1
+      - uses: yayuyokitano/firefox-addon@v0.0.3-alpha
         with:
-          cmd: build
-          source: unpacked/
-          artifacts: packed/
-          filename: firefox.latest.unsigned.xpi
-
-      - name: Upload & release Firefox Extension
-        uses: kewisch/action-web-ext@v1
-        id: firefoxrelease
-        with:
-          cmd: sign
-          source: packed/firefox.latest.unsigned.xpi
-          artifacts: packed/
-          channel: listed
-          apiKey: ${{ secrets.FIREFOX_API_KEY }}
-          apiSecret: ${{ secrets.FIREFOX_API_SECRET }}
-          timeout: 900000
-
-      - run: rm packed/firefox.latest.unsigned.xpi
-
-      - run: mv ${{ steps.firefoxrelease.outputs.target }} packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi
-
-      - run: cp packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi packed/firefox.latest.signed.xpi
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: firefox-v${{ needs.build.outputs.version }}-signed
-          path: packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi
+          api_key: ${{ secrets.FIREFOX_API_KEY }}
+          api_secret: ${{ secrets.FIREFOX_API_SECRET }}
+          guid: '{30f635f1-e207-4235-b4d5-acf670463325}'
+          xpi_path: firefox.v${{ needs.build.outputs.version }}.zip
+          src_path: source.v${{ needs.build.outputs.version }}.zip

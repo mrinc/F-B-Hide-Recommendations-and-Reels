@@ -16,5 +16,6 @@ Make a pull request back into master and we'll check and merge it
 
 # Building package
 
-Run `build-package.sh` and it will compile the extensions into the `dist/packed` dir.  
-Requirements: Typescript, NodeJS  
+Run `build.sh` and it will compile the extensions into the `dist/packed` dir.  
+Requirements: docker (v24+), docker compose (v1.29+)  
+Build is handled inside a container for isolation and consistency.
