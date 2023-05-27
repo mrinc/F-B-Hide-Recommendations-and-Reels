@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  build-fbhrar: 
+    build:
+      context: .
+      dockerfile: ./build.DockerFile
+    volumes:
+      - ./dist:/home/buildp/dist

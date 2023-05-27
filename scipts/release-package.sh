@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo 'depreciated!'
+exit 5
+
 rm -rfv dist
 rm -rfv lib
 rm -rfv release
