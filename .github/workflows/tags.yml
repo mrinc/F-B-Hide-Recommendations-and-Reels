@@ -39,7 +39,7 @@ jobs:
 
       - run: bash ./build-package.sh
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: v${{ steps.semver.outputs.version }}
           path: dist/packed/*
