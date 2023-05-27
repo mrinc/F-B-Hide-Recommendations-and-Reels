@@ -19,7 +19,7 @@ jobs:
 
       - name: semver
         id: semver
-        uses: paulhatch/semantic-version@v5
+        uses: paulhatch/semantic-version@v5.0.3
         with:
           tag_prefix: "v"
           branch: release
