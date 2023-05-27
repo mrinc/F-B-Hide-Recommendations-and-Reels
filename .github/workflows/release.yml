@@ -55,16 +55,8 @@ jobs:
           prerelease: true
           title: "Release v${{ steps.semver.outputs.version }}"
           files: |
-            LICENSE.txt
-            dist/packed/*.zip
-
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: v${{ steps.semver.outputs.version }}
-          path: dist/packed/*
-          if-no-files-found: error
-          retention-days: 5
+            ./LICENSE
+            ./dist/packed/*.zip
 
       - uses: actions/upload-artifact@v3
         with:
@@ -89,10 +81,46 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: dist
-          path: dist
+          name: chrome-latest
+          path: dist/packed/chrome.latest.zip
           if-no-files-found: error
-          retention-days: 5
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: firefox-latest
+          path: dist/packed/firefox.latest.zip
+          if-no-files-found: error
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: edge-latest
+          path: dist/packed/edge.latest.zip
+          if-no-files-found: error
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: chrome-unpacked
+          path: dist/unpacked/chrome/*
+          if-no-files-found: error
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: firefox-unpacked
+          path: dist/unpacked/firefox/*
+          if-no-files-found: error
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: edge-unpacked
+          path: dist/unpacked/edge/*
+          if-no-files-found: error
+          retention-days: 7
+
 
   publish-chrome:
     needs: build
@@ -102,12 +130,12 @@ jobs:
       - name: Download dists
         uses: actions/download-artifact@v3
         with:
-          name: dist
+          name: chrome-latest
 
       - name: Upload & release Chrome Extension
         uses: mnao305/chrome-extension-upload@3.0.0
         with:
-          file-path: dist/packed/chrome.latest.zip
+          file-path: chrome.latest.zip
           extension-id: "mgfdapnedjhfmhcaglenpnjaocjpfplj"
           client-id: ${{ secrets.CHROME_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
@@ -122,14 +150,15 @@ jobs:
       - name: Download dists
         uses: actions/download-artifact@v3
         with:
-          name: dist
+          name: firefox-unpacked
+          path: unpacked/
 
       - name: Build Firefox Extension
         uses: kewisch/action-web-ext@v1
         with:
           cmd: build
-          source: dist/unpacked/firefox
-          artifacts: dist/packed/
+          source: unpacked/
+          artifacts: packed/
           filename: firefox.latest.unsigned.xpi
 
       - name: Upload & release Firefox Extension
@@ -137,20 +166,20 @@ jobs:
         id: firefoxrelease
         with:
           cmd: sign
-          source: dist/packed/firefox.latest.unsigned.xpi
-          artifacts: dist/packed/
+          source: packed/firefox.latest.unsigned.xpi
+          artifacts: packed/
           channel: listed
           apiKey: ${{ secrets.FIREFOX_API_KEY }}
           apiSecret: ${{ secrets.FIREFOX_API_SECRET }}
           timeout: 900000
 
-      - run: rm dist/packed/firefox.latest.unsigned.xpi
+      - run: rm packed/firefox.latest.unsigned.xpi
 
-      - run: mv ${{ steps.firefoxrelease.outputs.target }} dist/packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi
+      - run: mv ${{ steps.firefoxrelease.outputs.target }} packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi
 
-      - run: cp dist/packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi dist/packed/firefox.latest.signed.xpi
+      - run: cp packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi packed/firefox.latest.signed.xpi
 
       - uses: actions/upload-artifact@v3
         with:
           name: firefox-v${{ needs.build.outputs.version }}-signed
-          path: dist/packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi
+          path: packed/firefox.v${{ needs.build.outputs.version }}.signed.xpi

@@ -47,13 +47,6 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: v${{ steps.semver.outputs.version }}
-          path: dist/packed/*
-          if-no-files-found: error
-          retention-days: 5
-
-      - uses: actions/upload-artifact@v3
-        with:
           name: chrome-v${{ steps.semver.outputs.version }}
           path: dist/packed/chrome.v${{ steps.semver.outputs.version }}.zip
           if-no-files-found: error
@@ -75,7 +68,21 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: dist
-          path: dist
+          name: chrome-latest
+          path: dist/packed/chrome.v${{ steps.semver.outputs.version }}.zip
           if-no-files-found: error
-          retention-days: 5
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: firefox-latest
+          path: dist/packed/firefox.v${{ steps.semver.outputs.version }}.zip
+          if-no-files-found: error
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: edge-latest
+          path: dist/packed/edge.v${{ steps.semver.outputs.version }}.zip
+          if-no-files-found: error
+          retention-days: 7
