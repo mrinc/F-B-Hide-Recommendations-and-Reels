@@ -28,7 +28,7 @@ jobs:
           format: "${major}.${minor}.${patch}-rc${increment}"
           change_path: "./"
           bump_each_commit: true
-          enable_prerelease_mode: true
+          #enable_prerelease_mode: true
           namespace: ""
 
       - name: output version
