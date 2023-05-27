@@ -1,0 +1,49 @@
+name: Build and create release
+
+on:
+  push:
+    branches:
+      - "release"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: semver
+        id: semver
+        uses: paulhatch/semantic-version@v5.0.3
+        with:
+          tag_prefix: "v"
+          branch: release
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          version_format: "${major}.${minor}.${patch}"
+          change_path: "./"
+          bump_each_commit: true
+          namespace: ""
+
+      - name: output version
+        run: |
+          echo "Setting version too: ${{ steps.semver.outputs.version }}";
+      - run: jq '.version = "${{ steps.semver.outputs.version }}"' src/manifest.json > ./manifest.json && mv ./manifest.json src/manifest.json
+      - run: echo "version=${{ steps.semver.outputs.version }} >> $GITHUB_OUTPUT"
+        id: version
+
+      # Just to make sure it builds
+      - run: bash ./build-package.sh
+
+      - name: Create tag for release
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          custom_tag: ${{ steps.semver.outputs.version }}
+          tag_prefix: v
+          github_token: ${{ secrets.GH_TOKEN }}
