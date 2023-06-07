@@ -1,6 +1,10 @@
 name: Build and create release
 
 on:
+  pull_request:
+    branches:
+      - release
+    types: [closed]
   push:
     branches:
       - "release"
@@ -125,6 +129,6 @@ jobs:
         with:
           api_key: ${{ secrets.FIREFOX_API_KEY }}
           api_secret: ${{ secrets.FIREFOX_API_SECRET }}
-          guid: '{30f635f1-e207-4235-b4d5-acf670463325}'
+          guid: "{30f635f1-e207-4235-b4d5-acf670463325}"
           xpi_path: firefox.v${{ needs.build.outputs.version }}.zip
           src_path: source.v${{ needs.build.outputs.version }}.zip
