@@ -308,7 +308,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
   },
   fr: {
     name: "French",
-    newsFeedPosts: "Messages du fil d'actualité",
+    newsFeedPosts: "Nouvelles publications du fil d’actualité",
     reelsBlock: "Reels et courtes vidéos",
     commentedOn: "a commenté un message de",
     peopleKnow: "Les gens que vous connaissez peut-être",
