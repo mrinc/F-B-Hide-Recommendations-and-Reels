@@ -56,7 +56,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GH_TOKEN }}"
           automatic_release_tag: "v${{ steps.semver.outputs.version }}"
-          prerelease: true
+          prerelease: false
           title: "Release v${{ steps.semver.outputs.version }}"
           files: |
             ./LICENSE
