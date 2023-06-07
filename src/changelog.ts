@@ -7,6 +7,15 @@ export interface ChangeLog {
 }
 export const Logs: Array<ChangeLog> = [
   {
+    version: "1.26.6",
+    changes: [
+      {
+        type: "BUGFIX",
+        description: "Fixed french lang search issue.",
+      },
+    ],
+  },
+  {
     version: "1.26.5",
     changes: [
       {
