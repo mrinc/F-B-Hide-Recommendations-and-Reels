@@ -26,6 +26,11 @@ export const Logs: Array<ChangeLog> = [
         description:
           "Updated config page to visibly show changes that are saved.",
       },
+      {
+        type: "IMPROVEMENT",
+        description:
+          "Added ability to define an array of text in order to handle A/B testing from facebook.",
+      },
     ],
   },
   {
