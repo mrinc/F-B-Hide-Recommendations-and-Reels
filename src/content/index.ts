@@ -1,8 +1,6 @@
-import type { Browser } from "webextension-polyfill";
 import { langs, LangText, LangType } from "../lib/langs";
 import { Popup } from "../lib/popup";
-declare let chrome: Browser;
-declare let browser: Browser;
+import { Storage } from "../lib/storage";
 interface MWindow extends Window {
   pausecc?: boolean;
 }
@@ -40,7 +38,7 @@ const DEBUG_MODE =
 
 if (DEBUG_MODE) console.warn("DEBUG MODE ENABLED");
 
-const corb = chrome || browser;
+const storage = new Storage();
 
 const redactAddElem = (key: string, elemA: Element, config: any) => {
   let elem = elemA as HTMLElement;
@@ -202,7 +200,7 @@ const contentCleaner = (
   if (window.location.pathname !== "/" && !DEBUG_MODE) {
     console.log(
       "contentCleaner:v" +
-        corb.runtime.getManifest().version +
+        storage.version +
         " - paused as not on home page"
     );
     definedFeedHolder = false;
@@ -210,7 +208,7 @@ const contentCleaner = (
   }
   console.log(
     "contentCleaner:v" +
-      corb.runtime.getManifest().version +
+      storage.version +
       " " +
       key +
       " lang: " +
@@ -243,7 +241,7 @@ const contentCleaner = (
       if (window.location.pathname !== "/" && !DEBUG_MODE) {
         console.log(
           "contentCleaner:v" +
-            corb.runtime.getManifest().version +
+            storage.version +
             " - paused as not on home page2"
         );
         definedFeedHolder = false;
@@ -282,7 +280,7 @@ const contentCleaner = (
     triedTwice = false;
     console.log(
       "contentCleaner:v" +
-        corb.runtime.getManifest().version +
+        storage.version +
         " " +
         key +
         " -clean"
@@ -531,9 +529,9 @@ const contentCleaner = (
       if (document.getElementById("fbcont-banner") === null) {
         document.getElementById("stories-container")!.innerHTML =
           '<div id="fbcont-banner" class="redact-elem redact-elem-fbhaar" fbver="' +
-          corb.runtime.getManifest().version +
+          storage.version +
           '" fbtxt="Facebook Hide Recommendations and Reels v' +
-          corb.runtime.getManifest().version +
+          storage.version +
           '"></div>' +
           document.getElementById("stories-container")!.innerHTML;
       }
@@ -580,89 +578,90 @@ const contentCleaner = (
     );
   }
 } else*/
-  document.body.onload = () => {
-    corb.storage.sync.get("data").then(async (items) => {
-      let config = (items || {}).data || {};
-      if (config.version !== corb.runtime.getManifest().version) {
-        // new version alert
-      }
-      if (config.version === undefined) {
-        // config never set
-        Popup.initWebStartHome(false);
+document.body.onload = async () => {
+  await storage.setup();
+  storage.get("data").then(async (config) => {
+    if (
+      config.version !== storage.version
+    ) {
+      // new version alert
+    }
+    if (config.version === '0.0.0') {
+      // config never set
+      await Popup.initWebStartHome(false);
+      return;
+    }
+    if (
+      config.version !==
+        storage.version &&
+      !DEBUG_MODE
+    ) {
+      await Popup.initWebStartHome(
+        config.version !== undefined &&
+          config.version !== null &&
+          config.version !== ""
+      );
+      return;
+    }
+    console.log("Known CC Config", config);
+    if (config.needsDelay !== false) {
+      console.log(
+        "Delaying CC by 5s as per https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/15"
+      );
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+    let contentClearTimer = setInterval(
+      () => contentCleaner("timer", false, config),
+      60000
+    );
+    contentCleaner(undefined, false, config);
+
+    let lastAction = 0;
+    let debounceTimer: NodeJS.Timeout | null = null;
+    document.addEventListener("scroll", function (e) {
+      let now = new Date().getTime();
+
+      if (now - lastAction > 1000) {
+        clearTimeout(debounceTimer!);
+        contentCleaner("force", false, config);
+        lastAction = now;
         return;
       }
-      if (
-        config.version !== corb.runtime.getManifest().version &&
-        !DEBUG_MODE
-      ) {
-        Popup.initWebStartHome(
-          config.version !== undefined &&
-            config.version !== null &&
-            config.version !== ""
-        );
-        return;
+      if (now - lastAction > 250) {
+        clearTimeout(debounceTimer!);
+        //let lastActionKey = `${lastAction}`;
+        debounceTimer = setTimeout(() => {
+          //if (`${lastAction}` != lastActionKey) return;
+          contentCleaner("scroll", false, config);
+          lastAction = now;
+        }, 500);
       }
-      console.log("Known CC Config", config);
-      if (config.needsDelay !== false) {
-        console.log(
-          "Delaying CC by 5s as per https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/15"
-        );
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-      }
-      let contentClearTimer = setInterval(
+    });
+
+    window.addEventListener("blur", () => {
+      contentCleaner("blur", false, config);
+      clearInterval(contentClearTimer);
+      contentClearTimer = setInterval(
         () => contentCleaner("timer", false, config),
         60000
       );
-      contentCleaner(undefined, false, config);
+    });
+    window.addEventListener("focus", () => {
+      contentCleaner("focus", false, config);
+      clearInterval(contentClearTimer);
+      contentClearTimer = setInterval(
+        () => contentCleaner("timer", false, config),
+        10000
+      );
+    });
 
-      let lastAction = 0;
-      let debounceTimer: NodeJS.Timeout | null = null;
-      document.addEventListener("scroll", function (e) {
-        let now = new Date().getTime();
-
-        if (now - lastAction > 1000) {
-          clearTimeout(debounceTimer!);
-          contentCleaner("force", false, config);
-          lastAction = now;
-          return;
-        }
-        if (now - lastAction > 250) {
-          clearTimeout(debounceTimer!);
-          //let lastActionKey = `${lastAction}`;
-          debounceTimer = setTimeout(() => {
-            //if (`${lastAction}` != lastActionKey) return;
-            contentCleaner("scroll", false, config);
-            lastAction = now;
-          }, 500);
-        }
-      });
-
-      window.addEventListener("blur", () => {
-        contentCleaner("blur", false, config);
-        clearInterval(contentClearTimer);
-        contentClearTimer = setInterval(
-          () => contentCleaner("timer", false, config),
-          60000
-        );
-      });
-      window.addEventListener("focus", () => {
-        contentCleaner("focus", false, config);
-        clearInterval(contentClearTimer);
-        contentClearTimer = setInterval(
-          () => contentCleaner("timer", false, config),
-          10000
-        );
-      });
-
-      corb.runtime.onMessage.addListener(function (
-        request,
-        sender,
-        sendResponse
-      ) {
+    storage
+      .getRawInstance()
+      .runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.fbhrar_reload === true) {
           console.log("force reload requested: config changed");
           forceReloadRequested = true;
         }
       });
-    });
-  };
+  });
+};

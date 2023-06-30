@@ -7,6 +7,28 @@ export interface ChangeLog {
 }
 export const Logs: Array<ChangeLog> = [
   {
+    version: "1.26.7",
+    changes: [
+      {
+        type: "BUGFIX",
+        description: "Fixed issues with storage on firefox.",
+      },
+      {
+        type: "IMPROVEMENT",
+        description: "General improvements.",
+      },
+      {
+        type: "IMPROVEMENT",
+        description: "Updated checkbox styling for more visibilty.",
+      },
+      {
+        type: "IMPROVEMENT",
+        description:
+          "Updated config page to visibly show changes that are saved.",
+      },
+    ],
+  },
+  {
     version: "1.26.6",
     changes: [
       {
