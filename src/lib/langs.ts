@@ -12,17 +12,17 @@ export interface LangText {
 }
 export interface LangType {
   name: string;
-  newsFeedPosts?: string;
-  reelsBlock?: string;
-  commentedOn?: string;
-  commentedOnFriend?: string;
-  friendRequests?: string;
-  tagged?: string;
-  peopleKnow?: string;
-  suggested?: string;
-  containsReels?: string;
-  answeredQuestion?: string;
-  createAPost?: string;
+  newsFeedPosts?: string | Array<string>;
+  reelsBlock?: string | Array<string>;
+  commentedOn?: string | Array<string>;
+  commentedOnFriend?: string | Array<string>;
+  friendRequests?: string | Array<string>;
+  tagged?: string | Array<string>;
+  peopleKnow?: string | Array<string>;
+  suggested?: string | Array<string>;
+  containsReels?: string | Array<string>;
+  answeredQuestion?: string | Array<string>;
+  createAPost?: string | Array<string>;
 }
 export interface SystemConfigSystemFormFormField {
   type: "checkbox" | "button";
@@ -312,7 +312,12 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     reelsBlock: "Reels et courtes vidéos",
     commentedOn: "a commenté un message de",
     peopleKnow: "Les gens que vous connaissez peut-être",
-    suggested: "Suggéré pour vous",
+    suggested: [
+      "Suggéré pour vous",
+      "Sponsorisé",
+      "Groupes suggérés",
+      "Évènements suggérés",
+    ],
     answeredQuestion: "a répondu à cette question",
     createAPost: "Créer une publication",
   },

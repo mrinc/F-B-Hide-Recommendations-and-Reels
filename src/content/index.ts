@@ -1,8 +1,6 @@
-import type { Browser } from "webextension-polyfill";
 import { langs, LangText, LangType } from "../lib/langs";
 import { Popup } from "../lib/popup";
-declare let chrome: Browser;
-declare let browser: Browser;
+import { Storage } from "../lib/storage";
 interface MWindow extends Window {
   pausecc?: boolean;
 }
@@ -40,7 +38,7 @@ const DEBUG_MODE =
 
 if (DEBUG_MODE) console.warn("DEBUG MODE ENABLED");
 
-const corb = chrome || browser;
+const storage = new Storage();
 
 const redactAddElem = (key: string, elemA: Element, config: any) => {
   let elem = elemA as HTMLElement;
@@ -105,83 +103,89 @@ const findFeedHolder = (lang: string) => {
   setLANG(lang);
   console.warn("contentCleaner: findFeedHolder: lang: ", lang);
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-    if (
-      feedHeader.innerHTML.toLowerCase() ===
-      parsedLang!.newsFeedPosts!.toLowerCase()
-    ) {
-      console.log("contentCleaner: try main finder - 1");
-      if (feedHeader.parentNode!.children.length > 3) {
-        definedFeedHolder = true;
-        (feedHeader.parentNode as Element).classList.add("defined-feed-holder");
-        return feedHeader.parentNode as Element;
+    for (let looper of typeof parsedLang!.newsFeedPosts! === "string"
+      ? [parsedLang!.newsFeedPosts!]
+      : parsedLang!.newsFeedPosts!) {
+      if (feedHeader.innerHTML.toLowerCase() === looper.toLowerCase()) {
+        console.log("contentCleaner: try main finder - 1");
+        if (feedHeader.parentNode!.children.length > 3) {
+          definedFeedHolder = true;
+          (feedHeader.parentNode as Element).classList.add(
+            "defined-feed-holder"
+          );
+          return feedHeader.parentNode as Element;
+        }
+        continue;
       }
-      break;
     }
   }
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-    if (
-      feedHeader.innerHTML.toLowerCase() ===
-      parsedLang!.newsFeedPosts!.toLowerCase()
-    ) {
-      console.log("contentCleaner: try main finder - 2");
-      if ((feedHeader.parentNode as Element).children.length === 2) {
-        if (
-          (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
-          (feedHeader.parentNode as Element).children[1].tagName !== "DIV"
-        )
-          continue;
-        definedFeedHolder = true;
-        (feedHeader.parentNode as Element).children[1].classList.add(
-          "defined-feed-holder"
-        );
-        return (feedHeader.parentNode as Element).children[1];
+    for (let looper of typeof parsedLang!.newsFeedPosts! === "string"
+      ? [parsedLang!.newsFeedPosts!]
+      : parsedLang!.newsFeedPosts!) {
+      if (feedHeader.innerHTML.toLowerCase() === looper.toLowerCase()) {
+        console.log("contentCleaner: try main finder - 2");
+        if ((feedHeader.parentNode as Element).children.length === 2) {
+          if (
+            (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
+            (feedHeader.parentNode as Element).children[1].tagName !== "DIV"
+          )
+            continue;
+          definedFeedHolder = true;
+          (feedHeader.parentNode as Element).children[1].classList.add(
+            "defined-feed-holder"
+          );
+          return (feedHeader.parentNode as Element).children[1];
+        }
+        continue;
       }
-      break;
     }
   }
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
-    if (
-      feedHeader.innerHTML.toLowerCase() ===
-      parsedLang!.newsFeedPosts!.toLowerCase()
-    ) {
-      console.log("contentCleaner: try main finder - 3");
-      if ((feedHeader.parentNode as Element).children.length === 3) {
-        if (
-          (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
-          (feedHeader.parentNode as Element).children[1].tagName !== "DIV" ||
-          (feedHeader.parentNode as Element).children[2].tagName !== "DIV" ||
-          (feedHeader.parentNode as Element).children[2].children.length === 0
-        )
-          continue;
-        definedFeedHolder = true;
-        (feedHeader.parentNode as Element).children[2].classList.add(
-          "defined-feed-holder"
-        );
-        return (feedHeader.parentNode as Element).children[2];
+    for (let looper of typeof parsedLang!.newsFeedPosts! === "string"
+      ? [parsedLang!.newsFeedPosts!]
+      : parsedLang!.newsFeedPosts!) {
+      if (feedHeader.innerHTML.toLowerCase() === looper.toLowerCase()) {
+        console.log("contentCleaner: try main finder - 3");
+        if ((feedHeader.parentNode as Element).children.length === 3) {
+          if (
+            (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
+            (feedHeader.parentNode as Element).children[1].tagName !== "DIV" ||
+            (feedHeader.parentNode as Element).children[2].tagName !== "DIV" ||
+            (feedHeader.parentNode as Element).children[2].children.length === 0
+          )
+            continue;
+          definedFeedHolder = true;
+          (feedHeader.parentNode as Element).children[2].classList.add(
+            "defined-feed-holder"
+          );
+          return (feedHeader.parentNode as Element).children[2];
+        }
+        continue;
       }
-      break;
     }
   }
   for (let feedHeader of window.document.querySelectorAll('h2[dir="auto"]')) {
-    if (
-      feedHeader.innerHTML.toLowerCase() ===
-      parsedLang!.newsFeedPosts!.toLowerCase()
-    ) {
-      console.log("contentCleaner: try main finder - 4");
-      if ((feedHeader.parentNode as Element).children.length === 2) {
-        if (
-          (feedHeader.parentNode as Element).children[0].tagName !== "H2" ||
-          (feedHeader.parentNode as Element).children[1].tagName !== "DIV" ||
-          (feedHeader.parentNode as Element).children[1].children.length === 0
-        )
-          continue;
-        definedFeedHolder = true;
-        (feedHeader.parentNode as Element).children[1].classList.add(
-          "defined-feed-holder"
-        );
-        return (feedHeader.parentNode as Element).children[1];
+    for (let looper of typeof parsedLang!.newsFeedPosts! === "string"
+      ? [parsedLang!.newsFeedPosts!]
+      : parsedLang!.newsFeedPosts!) {
+      if (feedHeader.innerHTML.toLowerCase() === looper.toLowerCase()) {
+        console.log("contentCleaner: try main finder - 4");
+        if ((feedHeader.parentNode as Element).children.length === 2) {
+          if (
+            (feedHeader.parentNode as Element).children[0].tagName !== "H2" ||
+            (feedHeader.parentNode as Element).children[1].tagName !== "DIV" ||
+            (feedHeader.parentNode as Element).children[1].children.length === 0
+          )
+            continue;
+          definedFeedHolder = true;
+          (feedHeader.parentNode as Element).children[1].classList.add(
+            "defined-feed-holder"
+          );
+          return (feedHeader.parentNode as Element).children[1];
+        }
+        continue;
       }
-      break;
     }
   }
 
@@ -201,20 +205,13 @@ const contentCleaner = (
   if (window.pausecc === true) return;
   if (window.location.pathname !== "/" && !DEBUG_MODE) {
     console.log(
-      "contentCleaner:v" +
-        corb.runtime.getManifest().version +
-        " - paused as not on home page"
+      "contentCleaner:v" + storage.version + " - paused as not on home page"
     );
     definedFeedHolder = false;
     return;
   }
   console.log(
-    "contentCleaner:v" +
-      corb.runtime.getManifest().version +
-      " " +
-      key +
-      " lang: " +
-      asLang
+    "contentCleaner:v" + storage.version + " " + key + " lang: " + asLang
   );
   if (forceReloadRequested) {
     forceReloadRequested = false;
@@ -243,7 +240,7 @@ const contentCleaner = (
       if (window.location.pathname !== "/" && !DEBUG_MODE) {
         console.log(
           "contentCleaner:v" +
-            corb.runtime.getManifest().version +
+            storage.version +
             " - paused as not on home page2"
         );
         definedFeedHolder = false;
@@ -280,13 +277,7 @@ const contentCleaner = (
     }
     triedAllLangs = false;
     triedTwice = false;
-    console.log(
-      "contentCleaner:v" +
-        corb.runtime.getManifest().version +
-        " " +
-        key +
-        " -clean"
-    );
+    console.log("contentCleaner:v" + storage.version + " " + key + " -clean");
     let result = {
       total: feed.children.length,
       alreadyRedacted: 0,
@@ -304,6 +295,7 @@ const contentCleaner = (
       monitoring: 0,
     };
     for (let elem of feed.children) {
+      let upContinue = false;
       if (elem.classList.contains("redact-elem")) {
         result.alreadyRedacted += 1;
         continue;
@@ -312,134 +304,188 @@ const contentCleaner = (
         result.ignored += 1;
         continue;
       }
-      if (
-        elem.innerHTML
-          .toLowerCase()
-          .indexOf(parsedLang!.friendRequests!.toLowerCase()) >= 0
-      ) {
-        if (config.friendRequests !== true) {
-          elem.classList.add("no-redact-elem");
-          elem.classList.add("no-reels-redact");
-          result.opsignored += 1;
+      for (let arrOfChecks of typeof parsedLang!.friendRequests! === "string"
+        ? [parsedLang!.friendRequests!]
+        : parsedLang!.friendRequests!) {
+        if (
+          elem.innerHTML.toLowerCase().indexOf(arrOfChecks.toLowerCase()) >= 0
+        ) {
+          if (config.friendRequests !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-reels-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("friendRequests", elem, config);
+          elem.classList.add("redact-elem-reels");
+          result.redacted.reels += 1;
+          upContinue = true;
           continue;
         }
-        redactAddElem("friendRequests", elem, config);
-        elem.classList.add("redact-elem-reels");
-        result.redacted.reels += 1;
-        continue;
       }
-      if (
-        elem.innerHTML
-          .toLowerCase()
-          .indexOf(parsedLang!.reelsBlock!.toLowerCase()) >= 0
-      ) {
-        if (config.reels !== true) {
-          elem.classList.add("no-redact-elem");
-          elem.classList.add("no-reels-redact");
-          result.opsignored += 1;
+      if (upContinue) continue;
+      for (let arrOfChecks of typeof parsedLang!.reelsBlock! === "string"
+        ? [parsedLang!.reelsBlock!]
+        : parsedLang!.reelsBlock!) {
+        if (
+          elem.innerHTML
+            .toLowerCase()
+            .indexOf(arrOfChecks.toLowerCase()) >= 0
+        ) {
+          if (config.reels !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-reels-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("reelsBlock", elem, config);
+          elem.classList.add("redact-elem-reels");
+          result.redacted.reels += 1;
+          upContinue = true;
           continue;
         }
-        redactAddElem("reelsBlock", elem, config);
-        elem.classList.add("redact-elem-reels");
-        result.redacted.reels += 1;
-        continue;
       }
-      if (
-        elem.innerHTML
-          .toLowerCase()
-          .indexOf(parsedLang!.containsReels!.toLowerCase()) >= 0
-      ) {
-        if (config.containsReels !== true) {
-          elem.classList.add("no-redact-elem");
-          elem.classList.add("no-reels-redact");
-          result.opsignored += 1;
+      if (upContinue) continue;
+      for (let arrOfChecks of typeof parsedLang!.containsReels! === "string"
+        ? [parsedLang!.containsReels!]
+        : parsedLang!.containsReels!) {
+        if (
+          elem.innerHTML
+            .toLowerCase()
+            .indexOf(arrOfChecks.toLowerCase()) >= 0
+        ) {
+          if (config.containsReels !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-reels-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("containsReels", elem, config);
+          elem.classList.add("redact-elem-reels");
+          result.redacted.reels += 1;
+          upContinue = true;
           continue;
         }
-        redactAddElem("containsReels", elem, config);
-        elem.classList.add("redact-elem-reels");
-        result.redacted.reels += 1;
-        continue;
       }
-      if (
-        elem.innerHTML
-          .toLowerCase()
-          .indexOf(" " + parsedLang!.commentedOn!.toLowerCase()) >= 0
-      ) {
-        if (config.commentedOn !== true) {
-          elem.classList.add("no-redact-elem");
-          elem.classList.add("no-commentedOn-redact");
-          result.opsignored += 1;
+      if (upContinue) continue;
+      for (let arrOfChecks of typeof parsedLang!.commentedOn! === "string"
+        ? [parsedLang!.commentedOn!]
+        : parsedLang!.commentedOn!) {
+        if (
+          elem.innerHTML
+            .toLowerCase()
+            .indexOf(" " + arrOfChecks.toLowerCase()) >= 0
+        ) {
+          if (config.commentedOn !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-commentedOn-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("commentedOn", elem, config);
+          elem.classList.add("redact-elem-commentedOn");
+          result.redacted.commentedOn += 1;
+          upContinue = true;
           continue;
         }
-        redactAddElem("commentedOn", elem, config);
-        elem.classList.add("redact-elem-commentedOn");
-        result.redacted.commentedOn += 1;
-        continue;
       }
-      if (
-        elem.innerHTML
-          .toLowerCase()
-          .indexOf(" " + parsedLang!.commentedOnFriend!.toLowerCase()) >= 0
-      ) {
-        if (config.commentedOnFriend !== true) {
-          elem.classList.add("no-redact-elem");
-          elem.classList.add("no-commentedOn-redact");
-          result.opsignored += 1;
+      if (upContinue) continue;
+      for (let arrOfChecks of typeof parsedLang!.commentedOnFriend! === "string"
+        ? [parsedLang!.commentedOnFriend!]
+        : parsedLang!.commentedOnFriend!) {
+        if (
+          elem.innerHTML
+            .toLowerCase()
+            .indexOf(" " + arrOfChecks.toLowerCase()) >= 0
+        ) {
+          if (config.commentedOnFriend !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-commentedOn-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("commentedOnFriend", elem, config);
+          elem.classList.add("redact-elem-commentedOn");
+          result.redacted.commentedOn += 1;
+          upContinue = true;
           continue;
         }
-        redactAddElem("commentedOnFriend", elem, config);
-        elem.classList.add("redact-elem-commentedOn");
-        result.redacted.commentedOn += 1;
-        continue;
       }
-      if (
-        elem.innerHTML
-          .toLowerCase()
-          .indexOf(" " + parsedLang!.tagged!.toLowerCase()) >= 0
-      ) {
-        if (config.tagged !== true) {
-          elem.classList.add("no-redact-elem");
-          elem.classList.add("no-answeredQuestion-redact");
-          result.opsignored += 1;
+      if (upContinue) continue;
+      for (let arrOfChecks of typeof parsedLang!.tagged! === "string"
+        ? [parsedLang!.tagged!]
+        : parsedLang!.tagged!) {
+        if (
+          elem.innerHTML
+            .toLowerCase()
+            .indexOf(" " + arrOfChecks.toLowerCase()) >= 0
+        ) {
+          if (config.tagged !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-answeredQuestion-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("tagged", elem, config);
+          elem.classList.add("redact-elem-answeredQuestion");
+          result.redacted.answeredQuestion += 1;
+          upContinue = true;
           continue;
         }
-        redactAddElem("tagged", elem, config);
-        elem.classList.add("redact-elem-answeredQuestion");
-        result.redacted.answeredQuestion += 1;
-        continue;
       }
-      if (
-        elem.innerHTML
-          .toLowerCase()
-          .indexOf(" " + parsedLang!.answeredQuestion!.toLowerCase()) >= 0
-      ) {
-        if (config.answeredQuestion !== true) {
-          elem.classList.add("no-redact-elem");
-          elem.classList.add("no-answeredQuestion-redact");
-          result.opsignored += 1;
+      if (upContinue) continue;
+      for (let arrOfChecks of typeof parsedLang!.answeredQuestion! === "string"
+        ? [parsedLang!.answeredQuestion!]
+        : parsedLang!.answeredQuestion!) {
+        if (
+          elem.innerHTML
+            .toLowerCase()
+            .indexOf(" " + arrOfChecks.toLowerCase()) >= 0
+        ) {
+          if (config.answeredQuestion !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-answeredQuestion-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("answeredQuestion", elem, config);
+          elem.classList.add("redact-elem-answeredQuestion");
+          result.redacted.answeredQuestion += 1;
+          upContinue = true;
           continue;
         }
-        redactAddElem("answeredQuestion", elem, config);
-        elem.classList.add("redact-elem-answeredQuestion");
-        result.redacted.answeredQuestion += 1;
-        continue;
       }
-      if (
-        elem.innerHTML
-          .toLowerCase()
-          .indexOf(parsedLang!.peopleKnow!.toLowerCase()) >= 0
-      ) {
-        if (config.peopleMayKnow !== true) {
-          elem.classList.add("no-redact-elem");
-          elem.classList.add("no-peopleMayKnow-redact");
-          result.opsignored += 1;
+      if (upContinue) continue;
+      for (let arrOfChecks of typeof parsedLang!.peopleKnow! === "string"
+        ? [parsedLang!.peopleKnow!]
+        : parsedLang!.peopleKnow!) {
+        if (
+          elem.innerHTML
+            .toLowerCase()
+            .indexOf(arrOfChecks.toLowerCase()) >= 0
+        ) {
+          if (config.peopleMayKnow !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-peopleMayKnow-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("peopleKnow", elem, config);
+          elem.classList.add("redact-elem-peopleMayKnow");
+          result.redacted.peopleMayKnow += 1;
+          upContinue = true;
           continue;
         }
-        redactAddElem("peopleKnow", elem, config);
-        elem.classList.add("redact-elem-peopleMayKnow");
-        result.redacted.peopleMayKnow += 1;
-        continue;
       }
+      if (upContinue) continue;
       if (
         elem.innerHTML.indexOf("/ads/about/") > 0 /* ||
       (elem.innerHTML.indexOf(">p</div>") > 0 &&
@@ -460,22 +506,29 @@ const contentCleaner = (
         result.redacted.ads += 1;
         continue;
       }
-      if (
-        elem.innerHTML
-          .toLowerCase()
-          .indexOf(">" + parsedLang!.suggested!.toLowerCase() + "<") >= 0
-      ) {
-        if (config.suggestions !== true) {
-          elem.classList.add("no-redact-elem");
-          elem.classList.add("no-suggestions-redact");
-          result.opsignored += 1;
+      for (let arrOfChecks of typeof parsedLang!.suggested! === "string"
+        ? [parsedLang!.suggested!]
+        : parsedLang!.suggested!) {
+        if (
+          elem.innerHTML
+            .toLowerCase()
+            .indexOf(">" + arrOfChecks.toLowerCase() + "<") >= 0
+        ) {
+          if (config.suggestions !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-suggestions-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("suggested", elem, config);
+          elem.classList.add("redact-elem-suggestions");
+          result.redacted.suggestions += 1;
+          upContinue = true;
           continue;
         }
-        redactAddElem("suggested", elem, config);
-        elem.classList.add("redact-elem-suggestions");
-        result.redacted.suggestions += 1;
-        continue;
       }
+      if (upContinue) continue;
       let contentCounter: string | number = `${
         elem.getAttribute("ccount") || ""
       }`;
@@ -531,9 +584,9 @@ const contentCleaner = (
       if (document.getElementById("fbcont-banner") === null) {
         document.getElementById("stories-container")!.innerHTML =
           '<div id="fbcont-banner" class="redact-elem redact-elem-fbhaar" fbver="' +
-          corb.runtime.getManifest().version +
+          storage.version +
           '" fbtxt="Facebook Hide Recommendations and Reels v' +
-          corb.runtime.getManifest().version +
+          storage.version +
           '"></div>' +
           document.getElementById("stories-container")!.innerHTML;
       }
@@ -580,89 +633,84 @@ const contentCleaner = (
     );
   }
 } else*/
-  document.body.onload = () => {
-    corb.storage.sync.get("data").then(async (items) => {
-      let config = (items || {}).data || {};
-      if (config.version !== corb.runtime.getManifest().version) {
-        // new version alert
-      }
-      if (config.version === undefined) {
-        // config never set
-        Popup.initWebStartHome(false);
+document.body.onload = async () => {
+  await storage.setup();
+  storage.get("data").then(async (config) => {
+    if (config.version !== storage.version) {
+      // new version alert
+    }
+    if (config.version === "0.0.0") {
+      // config never set
+      await Popup.initWebStartHome(false);
+      return;
+    }
+    if (config.version !== storage.version && !DEBUG_MODE) {
+      await Popup.initWebStartHome(
+        config.version !== undefined &&
+          config.version !== null &&
+          config.version !== ""
+      );
+      return;
+    }
+    console.log("Known CC Config", config);
+    if (config.needsDelay !== false) {
+      console.log(
+        "Delaying CC by 5s as per https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/15"
+      );
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+    let contentClearTimer = setInterval(
+      () => contentCleaner("timer", false, config),
+      60000
+    );
+    contentCleaner(undefined, false, config);
+
+    let lastAction = 0;
+    let debounceTimer: NodeJS.Timeout | null = null;
+    document.addEventListener("scroll", function (e) {
+      let now = new Date().getTime();
+
+      if (now - lastAction > 1000) {
+        clearTimeout(debounceTimer!);
+        contentCleaner("force", false, config);
+        lastAction = now;
         return;
       }
-      if (
-        config.version !== corb.runtime.getManifest().version &&
-        !DEBUG_MODE
-      ) {
-        Popup.initWebStartHome(
-          config.version !== undefined &&
-            config.version !== null &&
-            config.version !== ""
-        );
-        return;
+      if (now - lastAction > 250) {
+        clearTimeout(debounceTimer!);
+        //let lastActionKey = `${lastAction}`;
+        debounceTimer = setTimeout(() => {
+          //if (`${lastAction}` != lastActionKey) return;
+          contentCleaner("scroll", false, config);
+          lastAction = now;
+        }, 500);
       }
-      console.log("Known CC Config", config);
-      if (config.needsDelay !== false) {
-        console.log(
-          "Delaying CC by 5s as per https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/15"
-        );
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-      }
-      let contentClearTimer = setInterval(
+    });
+
+    window.addEventListener("blur", () => {
+      contentCleaner("blur", false, config);
+      clearInterval(contentClearTimer);
+      contentClearTimer = setInterval(
         () => contentCleaner("timer", false, config),
         60000
       );
-      contentCleaner(undefined, false, config);
+    });
+    window.addEventListener("focus", () => {
+      contentCleaner("focus", false, config);
+      clearInterval(contentClearTimer);
+      contentClearTimer = setInterval(
+        () => contentCleaner("timer", false, config),
+        10000
+      );
+    });
 
-      let lastAction = 0;
-      let debounceTimer: NodeJS.Timeout | null = null;
-      document.addEventListener("scroll", function (e) {
-        let now = new Date().getTime();
-
-        if (now - lastAction > 1000) {
-          clearTimeout(debounceTimer!);
-          contentCleaner("force", false, config);
-          lastAction = now;
-          return;
-        }
-        if (now - lastAction > 250) {
-          clearTimeout(debounceTimer!);
-          //let lastActionKey = `${lastAction}`;
-          debounceTimer = setTimeout(() => {
-            //if (`${lastAction}` != lastActionKey) return;
-            contentCleaner("scroll", false, config);
-            lastAction = now;
-          }, 500);
-        }
-      });
-
-      window.addEventListener("blur", () => {
-        contentCleaner("blur", false, config);
-        clearInterval(contentClearTimer);
-        contentClearTimer = setInterval(
-          () => contentCleaner("timer", false, config),
-          60000
-        );
-      });
-      window.addEventListener("focus", () => {
-        contentCleaner("focus", false, config);
-        clearInterval(contentClearTimer);
-        contentClearTimer = setInterval(
-          () => contentCleaner("timer", false, config),
-          10000
-        );
-      });
-
-      corb.runtime.onMessage.addListener(function (
-        request,
-        sender,
-        sendResponse
-      ) {
+    storage
+      .getRawInstance()
+      .runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.fbhrar_reload === true) {
           console.log("force reload requested: config changed");
           forceReloadRequested = true;
         }
       });
-    });
-  };
+  });
+};

@@ -1,83 +1,60 @@
 import type { Browser } from "webextension-polyfill";
 import { Notif } from "../lib/notif";
 import { SystemConfigSystem } from "./langs";
+import { ConfigDefition, Storage } from "./storage";
 
-declare let chrome: Browser;
-declare let browser: Browser;
-
-const corb = chrome || browser;
-
+const storage = new Storage();
 export class Popup {
-  public static initPopupConfig(
+  public static async initPopupConfig(
     key: string,
     config: SystemConfigSystem,
     docu: Document,
     showSaved: boolean = true
   ) {
+    await storage.setup();
     let configElems: Array<string> = [];
-    for (let form of Notif.DefaultPopupConfig().form!.forms) {
+    for (let form of (await Notif.DefaultPopupConfig()).form!.forms) {
       for (let field of form.fields!) {
         if (field.type !== "checkbox") continue;
         configElems.push(field.id);
       }
     }
-    docu.getElementById(key)!.innerHTML = Notif.createPopup(config);
-    (() => {
-      corb.storage.sync.get("data").then((items: any) => {
-        let data = (items || {}).data || {};
-        console.log("Restore", data);
-        // config never set, default it
-        data.friendRequests = data.friendRequests ?? false;
-        data.reels = data.reels ?? true;
-        data.containsReels = data.containsReels ?? true;
-        data.suggestions = data.suggestions ?? true;
-        data.tagged = data.tagged ?? true;
-        data.commentedOn = data.commentedOn ?? true;
-        data.commentedOnFriend = data.commentedOnFriend ?? true;
-        data.answeredQuestion = data.answeredQuestion ?? true;
-        data.peopleMayKnow = data.peopleMayKnow ?? true;
-        data.stories = data.stories ?? true;
-        data.needsDelay = data.needsDelay ?? false;
-        data.clickToShow = data.clickToShow ?? true;
-        data.createPost = data.createPost ?? true;
-        data.hideBlocks = data.hideBlocks ?? false;
-
-        //if (corb.runtime.error) return;
-        for (let configElem of configElems) {
-          console.log(configElem, data[configElem]);
-          (
-            docu.getElementById("fbhrr-" + configElem) as HTMLInputElement
-          ).checked = data[configElem] === true;
-        }
-        if (data.version !== corb.runtime.getManifest().version) {
-          changeEvent();
-        }
-      });
+    docu.getElementById(key)!.innerHTML = await Notif.createPopup(config);
+    (async () => {
+      storage
+        .get("data")
+        .then((data) => {
+          console.log("Restored", data);
+          for (let configElem of configElems) {
+            console.log(configElem, (data as any)[configElem]);
+            (
+              docu.getElementById("fbhrr-" + configElem) as HTMLInputElement
+            ).checked = (data as any)[configElem] === true;
+          }
+          if (data.version !== storage.version) {
+            changeEvent();
+          }
+        });
       const changeEvent = (id?: string) => {
-        let d: Record<string, any> = {};
+        let d: Record<string, any> | ConfigDefition = {};
         for (let configElem of configElems)
           d[configElem] =
             (docu.getElementById("fbhrr-" + configElem) as HTMLInputElement)
               .checked === true;
 
-        d.version = corb.runtime.getManifest().version;
-        corb.storage.sync.set({ data: d }).then(async () => {
+        d.version = storage.version;
+        storage.set("data", d as ConfigDefition).then(async () => {
           if (showSaved && typeof id === "string") {
-            docu.getElementById(`fbhrr-${id}-note`)!.innerHTML = " - saved";
+            docu.getElementById(`fbhrr-${id}-note`)!.innerHTML = ` - <span class="rounded bg-green-600 p-x text-white">saved</span>`;
             setTimeout(() => {
               docu.getElementById(`fbhrr-${id}-note`)!.innerHTML = "";
             }, 5000);
           }
           //if (corb.runtime.error) return;
-          if (corb === undefined || corb === null) return;
-          if ((corb as any).tabs === undefined || (corb as any).tabs === null)
-            return;
-          if (
-            (corb as any).tabs.query === undefined ||
-            (corb as any).tabs.query === null
-          )
-            return;
-          const tabs = await (corb as any).tabs.query({
+          const corb = storage.getRawInstance();
+          if (corb.tabs === undefined || corb.tabs === null) return;
+          if (corb.tabs.query === undefined || corb.tabs.query === null) return;
+          const tabs = await corb.tabs.query({
             //url: "https://www.facebook.com/*",
             active: true,
             currentWindow: true,
@@ -88,7 +65,7 @@ export class Popup {
             console.log("sending force reload request to: ", tab.id, " tab");
             // corb.tabs.reload
             //await corb.tabs.sendMessage(corb.runtime.id, {
-            await (corb as any).tabs.sendMessage(tab.id!, {
+            await corb.tabs.sendMessage(tab.id!, {
               fbhrar_reload: true,
             });
           }
@@ -102,44 +79,27 @@ export class Popup {
         };
     })();
   }
-  public static initPopupHome(key: string) {
-    let config = Notif.DefaultPopupConfig();
+  public static async initPopupHome(key: string) {
+    let config = await Notif.DefaultPopupConfig();
     config.form = undefined;
-    document.getElementById(key)!.innerHTML = Notif.createPopup(config);
+    document.getElementById(key)!.innerHTML = await Notif.createPopup(config);
 
-    let configConfig = Notif.DefaultPopupConfig();
+    let configConfig = await Notif.DefaultPopupConfig();
     configConfig.banner = undefined;
     (() => {
-      document.getElementById("fbhrr-goConfigure")!.onclick = () => {
+      document.getElementById("fbhrr-goConfigure")!.onclick = async () => {
         console.log("configure!");
-        Popup.initPopupConfig(key, configConfig, document);
+        await Popup.initPopupConfig(key, configConfig, document);
         (() => {
-          document.getElementById("fbhrr-resetConfig")!.onclick = () => {
-            let config: any = {};
-            /*config.reels = true;
-            config.containsReels = true;
-            config.suggestions = true;
-            config.tagged = true;
-            config.commentedOn = true;
-            config.commentedOnFriend = true;
-            config.answeredQuestion = true;
-            config.peopleMayKnow = true;
-            config.stories = true;
-            config.friendRequests = false;
-            config.needsDelay = false;
-            config.clickToShow = true;
-            config.createPost = true;
-            config.version = corb.runtime.getManifest().version;*/
-            corb.storage.sync.set({ data: config }).then(() => {
-              //if (corb.runtime.error) return;
-              location.reload();
-            });
+          document.getElementById("fbhrr-resetConfig")!.onclick = async () => {
+            await storage.delete("data");
+            location.reload();
           };
         })();
       };
     })();
   }
-  public static initContainer(config: SystemConfigSystem) {
+  public static async initContainer(config: SystemConfigSystem) {
     let clientNode = document.createElement("div");
     clientNode.id = "fbhrr-client";
     // client node acts as a background cover
@@ -165,7 +125,7 @@ export class Popup {
     iframeNode.setAttribute(
       "srcdoc",
       '<!DOCTYPE html><html><head></head><body><div id="fbhrr-content">' +
-        Notif.createPopup(config) +
+        (await Notif.createPopup(config)) +
         "</body></html>"
     );
     clientNode.appendChild(iframeNode);
@@ -173,16 +133,16 @@ export class Popup {
 
     return { container: clientNode, node: iframeNode };
   }
-  public static initWebStartHome(upgrade: boolean) {
-    let config = Notif.DefaultPopupConfig();
+  public static async initWebStartHome(upgrade: boolean) {
+    let config = await Notif.DefaultPopupConfig();
     config.form = undefined;
     config.banner = config.bannerHello;
     if (upgrade) config.banner = config.bannerHelloUpgrade;
     (config.banner as any).showChangelog = true;
 
-    let container = Popup.initContainer(config);
+    let container = await Popup.initContainer(config);
 
-    let configConfig = Notif.DefaultPopupConfig();
+    let configConfig = await Notif.DefaultPopupConfig();
     configConfig.banner = undefined;
     // overriding for formFieldHello
     for (let i = 0; i < configConfig.form!.forms.length; i++) {
@@ -196,9 +156,9 @@ export class Popup {
     container.node.onload = () => {
       (() => {
         const iframeDoc = (container.node as any).contentWindow.document;
-        iframeDoc.getElementById("fbhrr-goConfigure")!.onclick = () => {
+        iframeDoc.getElementById("fbhrr-goConfigure")!.onclick = async () => {
           console.log("configure!");
-          Popup.initPopupConfig(
+          await Popup.initPopupConfig(
             "fbhrr-content",
             configConfig,
             iframeDoc,
@@ -214,20 +174,20 @@ export class Popup {
     };
   }
   public static async initWebError() {
-    let diagVConfig = (await corb.storage.sync.get("diagVersion")) || {};
-    let diagVersion = diagVConfig.diagVersion || null;
+    let diagVConfig = (await storage.get<string>("diagVersion"));
+    let diagVersion = diagVConfig || null;
 
     if (
       diagVersion !== null &&
-      diagVersion === corb.runtime.getManifest().version
+      diagVersion === storage.version
     )
       return;
 
-    let config = Notif.DefaultPopupConfig();
+    let config = await Notif.DefaultPopupConfig();
     config.form = undefined;
     config.banner = config.bannerError;
 
-    let container = Popup.initContainer(config);
+    let container = await Popup.initContainer(config);
     container.node.onload = () => {
       (() => {
         const iframeDoc = (container.node as any).contentWindow.document;
@@ -296,9 +256,7 @@ export class Popup {
               elem.setAttribute("target", "_blank");
               container.container.appendChild(elem);
               elem.click();
-              await corb.storage.sync.set({
-                diagVersion: corb.runtime.getManifest().version,
-              });
+              await storage.set('diagVersion', storage.version);
               container.container.remove();
             } catch (exc) {
               alert(
