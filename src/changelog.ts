@@ -7,7 +7,7 @@ export interface ChangeLog {
 }
 export const Logs: Array<ChangeLog> = [
   {
-    version: "1.26.7",
+    version: "1.27.0",
     changes: [
       {
         type: "BUGFIX",
