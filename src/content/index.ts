@@ -286,6 +286,7 @@ const contentCleaner = (
       redacted: {
         total: 0,
         reels: 0,
+        games: 0,
         ads: 0,
         suggestions: 0,
         commentedOn: 0,
@@ -481,6 +482,29 @@ const contentCleaner = (
           redactAddElem("peopleKnow", elem, config);
           elem.classList.add("redact-elem-peopleMayKnow");
           result.redacted.peopleMayKnow += 1;
+          upContinue = true;
+          continue;
+        }
+      }
+      if (upContinue) continue;
+      for (let arrOfChecks of typeof parsedLang!.games! === "string"
+        ? [parsedLang!.games!]
+        : parsedLang!.games!) {
+        if (
+          elem.innerHTML
+            .toLowerCase()
+            .indexOf(arrOfChecks.toLowerCase()) >= 0
+        ) {
+          if (config.games !== true) {
+            elem.classList.add("no-redact-elem");
+            elem.classList.add("no-games-redact");
+            result.opsignored += 1;
+            upContinue = true;
+            continue;
+          }
+          redactAddElem("games", elem, config);
+          elem.classList.add("redact-elem-games");
+          result.redacted.games += 1;
           upContinue = true;
           continue;
         }

@@ -7,7 +7,16 @@ export interface ChangeLog {
 }
 export const Logs: Array<ChangeLog> = [
   {
-    version: "1.27.0",
+    version: "1.26.29",
+    changes: [
+      {
+        type: "FEATURE",
+        description: "Added games hiding.",
+      }
+    ],
+  },
+  {
+    version: "1.26.28",
     changes: [
       {
         type: "BUGFIX",

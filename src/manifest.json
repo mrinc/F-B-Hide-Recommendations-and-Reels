@@ -1,6 +1,10 @@
 {
   "name": "F-B Hide Recommendations and Reels",
+<<<<<<< HEAD
   "version": "1.27.0",
+=======
+  "version": "1.26.7",
+>>>>>>> develop
   "description": "This extension hides Reels and recommendations on facebook",
   "background": [{
     "scripts": ["background.js"],

@@ -9,6 +9,7 @@ export interface LangText {
   _tagged?: string;
   _containsReels?: string;
   _answeredQuestion?: string;
+  _games?: string;
 }
 export interface LangType {
   name: string;
@@ -23,6 +24,7 @@ export interface LangType {
   containsReels?: string | Array<string>;
   answeredQuestion?: string | Array<string>;
   createAPost?: string | Array<string>;
+  games?: string | Array<string>;
 }
 export interface SystemConfigSystemFormFormField {
   type: "checkbox" | "button";
@@ -91,6 +93,10 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     answeredQuestion: "answered this question.",
     containsReels: "Reels",
     createAPost: "Create a post",
+    games: [
+      'facebook.com/games/',
+      '/instantgames/play/'
+    ],
 
     _ad: "AD",
     _reelsBlock: "Reels",
@@ -102,6 +108,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     _peopleKnow: "Friend recommendations",
     _suggested: "Suggestions",
     _answeredQuestion: "A friend answered a question",
+    _games: "Was a game",
 
     _system: {
       css: {},
@@ -225,6 +232,12 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
                 title: "Friend recommendations",
                 desc: "Friends 'recommendations' or people you may know.",
                 addedInVersion: "1.0.0",
+              },{
+                type: "checkbox",
+                id: "games",
+                title: "Games",
+                desc: "Games.",
+                addedInVersion: "1.26.29",
               },
             ],
           },
