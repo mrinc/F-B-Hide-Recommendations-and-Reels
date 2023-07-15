@@ -135,6 +135,7 @@ export interface ConfigDefition extends ConfigBase {
   clickToShow: boolean;
   createPost: boolean;
   hideBlocks: boolean;
+  games: boolean;
 }
 export interface SmartStorageType {
   data(): ConfigDefition;
@@ -161,6 +162,7 @@ export class SmartStorageTypeDefaults {
       clickToShow: true,
       createPost: true,
       hideBlocks: false,
+      games: true,
     };
   }
 }
