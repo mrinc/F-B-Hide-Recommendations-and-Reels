@@ -311,11 +311,23 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
   },
   pl: {
     name: "Polish",
-    newsFeedPosts: "Posty na kanale aktualności",
+    newsFeedPosts: [
+      "Posty na kanale aktualności",
+      "Posty w Aktualnościach"
+    ],
     reelsBlock: "Rolki i krótkie filmy",
-    commentedOn: "skomentował post z",
-    peopleKnow: "Ludzie których możesz znać",
-    suggested: "Proponowana dla Ciebie",
+    containsReels: "Rolki",
+    commentedOn: [
+      "skomentował post z",
+      "skomentował"
+    ],
+    peopleKnow: [
+      "Ludzie których możesz znać",
+      "Osoby, które możesz znać"
+    ],
+    suggested: [
+      "Proponowana dla Ciebie"
+    ],
     answeredQuestion: "odpowiedziało na to pytanie",
     createAPost: "Utwórz wpis",
   },
