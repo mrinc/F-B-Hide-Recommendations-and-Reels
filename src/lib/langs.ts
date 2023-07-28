@@ -369,7 +369,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
   nl: {
     name: "Dutch",
     newsFeedPosts: "Berichten in het nieuwsoverzicht",
-    reelsBlock: "Reels and korte video's",
+    reelsBlock: "Reels en korte video's",
     commentedOn: "reageerde op een bericht van",
     peopleKnow: "Mensen die je misschien kent",
     suggested: "Aanbevolen voor jou",
