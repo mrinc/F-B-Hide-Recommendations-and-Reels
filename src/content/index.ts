@@ -6,6 +6,24 @@ interface MWindow extends Window {
 }
 declare let window: MWindow;
 
+let consolelogs: Array<{ type: "log" | "warn" | "error"; msg: string }> = [];
+const consoleLog = {
+  _addLog: (type: "log" | "warn" | "error", msg: string) => {
+    if (consolelogs.length > 100) consolelogs.shift();
+    consolelogs.push({ type, msg });
+    console[type](msg);
+  },
+  log: (msg: string) => {
+    consoleLog._addLog("log", msg);
+  },
+  warn: (msg: string) => {
+    consoleLog._addLog("warn", msg);
+  },
+  error: (msg: string) => {
+    consoleLog._addLog("error", msg);
+  },
+};
+
 const LANGS = () => JSON.parse(JSON.stringify(langs));
 
 let forceReloadRequested = false;
@@ -36,7 +54,7 @@ const DEBUG_MODE =
     "chrome-facebook-hide-ads-and-reels.mrincops.net" &&
   window.location.pathname.indexOf("/diag/") === 0;
 
-if (DEBUG_MODE) console.warn("DEBUG MODE ENABLED");
+if (DEBUG_MODE) consoleLog.warn("DEBUG MODE ENABLED");
 
 const storage = new Storage();
 
@@ -73,7 +91,7 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
       let itemTitle = elem.innerHTML;
       setText += ` (${decodeURIComponent(itemTitle)})`;
     } catch (e) {}
-    elem.setAttribute("ctext", setText);
+    elem.children[0].setAttribute("ctext", setText);
   }
 
   if (config.clickToShow !== false) {
@@ -98,16 +116,16 @@ const findFeedHolder = (lang: string) => {
     );
     if (newsFeedHolder.length > 0) return newsFeedHolder[0];
     definedFeedHolder = false;
-    console.warn("Couldnt find defined-feed-holder, trying again");
+    consoleLog.warn("Couldnt find defined-feed-holder, trying again");
   }
   setLANG(lang);
-  console.warn("contentCleaner: findFeedHolder: lang: ", lang);
+  consoleLog.warn("contentCleaner: findFeedHolder: lang: " + lang);
   for (let feedHeader of window.document.querySelectorAll('h3[dir="auto"]')) {
     for (let looper of typeof parsedLang!.newsFeedPosts! === "string"
       ? [parsedLang!.newsFeedPosts!]
       : parsedLang!.newsFeedPosts!) {
       if (feedHeader.innerHTML.toLowerCase() === looper.toLowerCase()) {
-        console.log("contentCleaner: try main finder - 1");
+        consoleLog.log("contentCleaner: try main finder - 1");
         if (feedHeader.parentNode!.children.length > 3) {
           definedFeedHolder = true;
           (feedHeader.parentNode as Element).classList.add(
@@ -124,7 +142,7 @@ const findFeedHolder = (lang: string) => {
       ? [parsedLang!.newsFeedPosts!]
       : parsedLang!.newsFeedPosts!) {
       if (feedHeader.innerHTML.toLowerCase() === looper.toLowerCase()) {
-        console.log("contentCleaner: try main finder - 2");
+        consoleLog.log("contentCleaner: try main finder - 2");
         if ((feedHeader.parentNode as Element).children.length === 2) {
           if (
             (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
@@ -146,7 +164,7 @@ const findFeedHolder = (lang: string) => {
       ? [parsedLang!.newsFeedPosts!]
       : parsedLang!.newsFeedPosts!) {
       if (feedHeader.innerHTML.toLowerCase() === looper.toLowerCase()) {
-        console.log("contentCleaner: try main finder - 3");
+        consoleLog.log("contentCleaner: try main finder - 3");
         if ((feedHeader.parentNode as Element).children.length === 3) {
           if (
             (feedHeader.parentNode as Element).children[0].tagName !== "H3" ||
@@ -170,7 +188,7 @@ const findFeedHolder = (lang: string) => {
       ? [parsedLang!.newsFeedPosts!]
       : parsedLang!.newsFeedPosts!) {
       if (feedHeader.innerHTML.toLowerCase() === looper.toLowerCase()) {
-        console.log("contentCleaner: try main finder - 4");
+        consoleLog.log("contentCleaner: try main finder - 4");
         if ((feedHeader.parentNode as Element).children.length === 2) {
           if (
             (feedHeader.parentNode as Element).children[0].tagName !== "H2" ||
@@ -204,13 +222,13 @@ const contentCleaner = (
   if (errorNotified) return;
   if (window.pausecc === true) return;
   if (window.location.pathname !== "/" && !DEBUG_MODE) {
-    console.log(
+    consoleLog.log(
       "contentCleaner:v" + storage.version + " - paused as not on home page"
     );
     definedFeedHolder = false;
     return;
   }
-  console.log(
+  consoleLog.log(
     "contentCleaner:v" + storage.version + " " + key + " lang: " + asLang
   );
   if (forceReloadRequested) {
@@ -224,13 +242,13 @@ const contentCleaner = (
     errorNotified = false;*/
 
     if (feed == null) {
-      console.warn(
+      consoleLog.warn(
         "Cannot find feed with document lang, lets find it another way"
       );
       for (let lang of Object.keys(LANGS())) {
         feed = findFeedHolder(lang);
         if (feed != null) {
-          console.log("Found feed with lang: " + lang);
+          consoleLog.log("Found feed with lang: " + lang);
           break;
         }
       }
@@ -238,7 +256,7 @@ const contentCleaner = (
     //feed = null as any;
     if (feed == null) {
       if (window.location.pathname !== "/" && !DEBUG_MODE) {
-        console.log(
+        consoleLog.log(
           "contentCleaner:v" +
             storage.version +
             " - paused as not on home page2"
@@ -252,7 +270,7 @@ const contentCleaner = (
           window.pausecc = false;
           triedAllLangs = true;
         }, 5000);
-        console.warn(
+        consoleLog.warn(
           "Cannot find feed with default lang (and any), trying again to find with any lang after 5s."
         );
         return;
@@ -263,21 +281,23 @@ const contentCleaner = (
           window.pausecc = false;
           triedTwice = true;
         }, 5000);
-        console.warn(
+        consoleLog.warn(
           "Cannot find feed with any lang, trying again one more time after 5s."
         );
         return;
       }
       errorNotified = true;
       if (!DEBUG_MODE) Popup.initWebError();
-      return console.warn("cannot find facebook feed");
+      return consoleLog.warn("cannot find facebook feed");
     }
     if (window.localStorage.getItem("fbhrar_locale") ?? "ns" !== asLang) {
       window.localStorage.setItem("fbhrar_locale", asLang);
     }
     triedAllLangs = false;
     triedTwice = false;
-    console.log("contentCleaner:v" + storage.version + " " + key + " -clean");
+    consoleLog.log(
+      "contentCleaner:v" + storage.version + " " + key + " -clean"
+    );
     let result = {
       total: feed.children.length,
       alreadyRedacted: 0,
@@ -330,9 +350,7 @@ const contentCleaner = (
         ? [parsedLang!.reelsBlock!]
         : parsedLang!.reelsBlock!) {
         if (
-          elem.innerHTML
-            .toLowerCase()
-            .indexOf(arrOfChecks.toLowerCase()) >= 0
+          elem.innerHTML.toLowerCase().indexOf(arrOfChecks.toLowerCase()) >= 0
         ) {
           if (config.reels !== true) {
             elem.classList.add("no-redact-elem");
@@ -353,9 +371,7 @@ const contentCleaner = (
         ? [parsedLang!.containsReels!]
         : parsedLang!.containsReels!) {
         if (
-          elem.innerHTML
-            .toLowerCase()
-            .indexOf(arrOfChecks.toLowerCase()) >= 0
+          elem.innerHTML.toLowerCase().indexOf(arrOfChecks.toLowerCase()) >= 0
         ) {
           if (config.containsReels !== true) {
             elem.classList.add("no-redact-elem");
@@ -468,9 +484,7 @@ const contentCleaner = (
         ? [parsedLang!.peopleKnow!]
         : parsedLang!.peopleKnow!) {
         if (
-          elem.innerHTML
-            .toLowerCase()
-            .indexOf(arrOfChecks.toLowerCase()) >= 0
+          elem.innerHTML.toLowerCase().indexOf(arrOfChecks.toLowerCase()) >= 0
         ) {
           if (config.peopleMayKnow !== true) {
             elem.classList.add("no-redact-elem");
@@ -491,9 +505,7 @@ const contentCleaner = (
         ? [parsedLang!.games!]
         : parsedLang!.games!) {
         if (
-          elem.innerHTML
-            .toLowerCase()
-            .indexOf(arrOfChecks.toLowerCase()) >= 0
+          elem.innerHTML.toLowerCase().indexOf(arrOfChecks.toLowerCase()) >= 0
         ) {
           if (config.games !== true) {
             elem.classList.add("no-redact-elem");
@@ -571,7 +583,7 @@ const contentCleaner = (
       result.redacted.answeredQuestion +
       result.redacted.peopleMayKnow +
       result.alreadyRedacted;
-    console.log(
+    consoleLog.log(
       `contentCleaner: ` +
         `[opsIgnored: ${result.opsignored}/${result.total}] ` +
         `[alreadyRedacted: ${result.alreadyRedacted}/${result.total}] ` +
@@ -632,7 +644,7 @@ const contentCleaner = (
           }
         }
       } catch (e) {
-        console.error(e);
+        consoleLog.error(e);
       }
     }
     if (isreRun) return;
@@ -641,7 +653,7 @@ const contentCleaner = (
       contentCleaner("re-clear:" + key, true, config);
     }, 2000);
   } catch (xcc) {
-    console.error(xcc);
+    consoleLog.error(xcc);
   }
 };
 
@@ -676,9 +688,9 @@ document.body.onload = async () => {
       );
       return;
     }
-    console.log("Known CC Config", config);
+    consoleLog.log("Known CC Config: " + JSON.stringify(config));
     if (config.needsDelay !== false) {
-      console.log(
+      consoleLog.log(
         "Delaying CC by 5s as per https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/15"
       );
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -732,9 +744,11 @@ document.body.onload = async () => {
       .getRawInstance()
       .runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.fbhrar_reload === true) {
-          console.log("force reload requested: config changed");
+          consoleLog.log("force reload requested: config changed");
           forceReloadRequested = true;
         }
       });
   });
 };
+
+console.warn('FB Hide Recommendations and Reels: Loaded content script - v' + storage.version);

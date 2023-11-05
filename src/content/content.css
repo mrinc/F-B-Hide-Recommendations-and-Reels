@@ -1,11 +1,3 @@
-.redact-elem {
-  height: 50px;
-  margin-bottom: 5px;
-}
-
-.redact-elem>div {
-  display: none !important;
-}
 .redact-elem.complete-redact {
   display: none !important;
 }
@@ -17,8 +9,54 @@
   background: var(--notification-badge);
 }
 
-.redact-elem::before {
+.redact-elem:not(.redact-elem.complete-redact):not(
+    .redact-elem.redact-elem-fbhaar
+  ) {
+  position: relative;
+}
+.redact-elem:not(.redact-elem.complete-redact):not(
+    .redact-elem.redact-elem-fbhaar
+  )
+  > div,
+.redact-elem:not(.redact-elem.complete-redact):not(
+    .redact-elem.redact-elem-fbhaar
+  )
+  > div::before {
+  transition: all 0.5s ease;
+}
+.redact-elem:not(.redact-elem.complete-redact):not(
+    .redact-elem.redact-elem-fbhaar
+  )
+  > div::before {
   content: "Was something before" attr(redact-comment);
+  border-top: 0px solid var(--secondary-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--secondary-text);
+  background: var(--surface-background);
+  font-family: var(--font-family-default);
+  border-radius: var(--card-corner-radius);
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+}
+.redact-elem:not(.redact-elem.complete-redact):not(
+    .redact-elem.redact-elem-fbhaar
+  ):hover
+  > div::before {
+  opacity: 0.8;
+}
+
+.redact-elem.redact-elem-fbhaar {
+  height: 50px;
+}
+.redact-elem.redact-elem-fbhaar::before {
   display: block;
   position: absolute;
   width: calc(100% - 25px);
@@ -27,44 +65,44 @@
   padding: 10px;
   padding-left: 15px;
   text-align: left;
-  font-size: .9375rem;
+  font-size: 0.9375rem;
   color: var(--secondary-text);
-  /*background: var(--web-wash);*/
   background: var(--surface-background);
   font-family: var(--font-family-default);
   z-index: 1;
-}
-
-.redact-elem.redact-elem-fbhaar::before {
   content: "Facebook Hide Recommendations and Reels";
 }
 
-.redact-elem.redact-elem-fbhaar[fbtxt]::before {
+.redact-elem.redact-elem-fbhaar[fbtxt] > div::before {
   content: attr(fbtxt);
 }
-.redact-elem[ctext]::before {
-  content: attr(ctext);
+.redact-elem > div[ctext]::before {
+  content: attr(ctext) !important;
 }
 
-.redact-elem.can-show[ctext]::before {
-  content: '\02C5' ' ' attr(ctext);
+.redact-elem.can-show > div[ctext]::before {
+  content: "\02C5"" " attr(ctext) !important;
 }
 
 /*div[aria-label="Stories"] {
   display: none !important;
 }*/
-#stories-container>div.stories {
+#stories-container > div.stories {
   display: none !important;
 }
 
-.redact-elem.temp-show {
-  height: auto;
-  margin-bottom: 5px;
+.redact-elem.temp-show > div {
+  margin-bottom: 50px;
 }
-
-.redact-elem.temp-show>div {
-  display: block !important;
+.redact-elem.temp-show > div::before {
+  width: calc(100% - 20px) !important;
+  border-top: 1px solid var(--secondary-text) !important;
+  border-top-right-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  top: calc(100% - 10px) !important;
+  height: 20px !important;
+  padding: 10px !important;
 }
-.redact-elem.temp-show[ctext]::before {
-  content: '\02C4' ' ' attr(ctext);
+.redact-elem.temp-show > div[ctext]::before {
+  content: "\02C4"" " attr(ctext) !important;
 }

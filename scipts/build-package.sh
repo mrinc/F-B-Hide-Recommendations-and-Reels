@@ -48,8 +48,7 @@ if [ "$1" = "chrome" ] || [ -z "$1" ]; then
   mkdir dist/unpacked/chrome
   cp -Rv ./LICENSE ./dist/unpacked/chrome/
   cp -Rv ./README.md ./dist/unpacked/chrome/
-  cp -Rv ./lib/* ./dist/unpacked/chrome/
-  cp -Rv ./lib/chrome/* ./dist/unpacked/chrome/
+  cp -v ./lib/* ./dist/unpacked/chrome/
   jq -s '.[0] * .[1]' ./lib/manifest.json ./lib/chrome/manifest.json >./dist/unpacked/chrome/manifest.json
   zip "dist/packed/chrome.latest.zip" -j ./dist/unpacked/chrome/*
   zip "dist/packed/chrome.v${PKVERSION}.zip" -j ./dist/unpacked/chrome/*
@@ -60,8 +59,7 @@ if [ "$1" = "edge" ] || [ -z "$1" ]; then
   mkdir dist/unpacked/edge
   cp -Rv ./LICENSE ./dist/unpacked/edge/
   cp -Rv ./README.md ./dist/unpacked/edge/
-  cp -Rv ./lib/* ./dist/unpacked/edge/
-  cp -Rv ./lib/edge/* ./dist/unpacked/edge/
+  cp -v ./lib/* ./dist/unpacked/edge/
   jq -s '.[0] * .[1]' ./lib/manifest.json ./lib/edge/manifest.json >./dist/unpacked/edge/manifest.json
   zip "dist/packed/edge.latest.zip" -j ./dist/unpacked/edge/*
   zip "dist/packed/edge.v${PKVERSION}.zip" -j ./dist/unpacked/edge/*
@@ -72,8 +70,7 @@ if [ "$1" = "firefox" ] || [ -z "$1" ]; then
   mkdir dist/unpacked/firefox
   cp -Rv ./LICENSE ./dist/unpacked/firefox/
   cp -Rv ./README.md ./dist/unpacked/firefox/
-  cp -Rv ./lib/* ./dist/unpacked/firefox/
-  cp -Rv ./lib/firefox/* ./dist/unpacked/firefox/
+  cp -v ./lib/* ./dist/unpacked/firefox/
   jq -s '.[0] * .[1]' ./lib/manifest.json ./lib/firefox/manifest.json >./dist/unpacked/firefox/manifest.json
   jq '{"background": { "scripts": .background[0].scripts } }' ./dist/unpacked/firefox/manifest.json >./dist/unpacked/firefox/manifest-temp.json
   jq 'del(.background)' ./dist/unpacked/firefox/manifest.json >./dist/unpacked/firefox/manifest-temp2.json
