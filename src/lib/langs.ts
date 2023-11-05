@@ -88,10 +88,16 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     commentedOnFriend: "commented.",
     peopleKnow: "People you may know",
     friendRequests: "Friend Requests",
-    suggested: "Suggested for you",
+    suggested: [
+      "Suggested for you",
+      "Suggested groups"
+    ],
     tagged: "was tagged.",
     answeredQuestion: "answered this question.",
-    containsReels: "Reels",
+    containsReels: [
+      "Reels",
+      "Stories"
+    ],
     createAPost: "Create a post",
     games: [
       'facebook.com/games/',
@@ -369,7 +375,10 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
   nl: {
     name: "Dutch",
     newsFeedPosts: "Berichten in het nieuwsoverzicht",
-    reelsBlock: "Reels and korte video's",
+    reelsBlock:[
+      "Reels en korte video's",
+      "Reels and korte video's"
+    ],
     commentedOn: "reageerde op een bericht van",
     peopleKnow: "Mensen die je misschien kent",
     suggested: "Aanbevolen voor jou",
