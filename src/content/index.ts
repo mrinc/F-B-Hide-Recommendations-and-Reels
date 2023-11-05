@@ -643,8 +643,8 @@ const contentCleaner = (
             break;
           }
         }
-      } catch (e) {
-        consoleLog.error(e);
+      } catch (e: any) {
+        consoleLog.error(e.message ?? e.toString());
       }
     }
     if (isreRun) return;
@@ -652,8 +652,8 @@ const contentCleaner = (
       //if (`${lastAction}` != lastActionKey) return;
       contentCleaner("re-clear:" + key, true, config);
     }, 2000);
-  } catch (xcc) {
-    consoleLog.error(xcc);
+  } catch (xcc: any) {
+    consoleLog.error(xcc.message ?? xcc.toString());
   }
 };
 

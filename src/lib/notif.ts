@@ -5,7 +5,7 @@ import {
   langs,
 } from "../lib/langs";
 import { Logs } from "../changelog";
-import {Storage} from './storage'
+import { Storage } from "./storage";
 
 const storage = new Storage();
 export class Notif {
@@ -15,19 +15,33 @@ export class Notif {
       JSON.stringify(langs.en._system)
     ) as SystemConfigSystem;
 
-    if ((window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang) !== "en") {
+    if (
+      (window.localStorage.getItem("fbhrar_locale") ??
+        document.documentElement.lang) !== "en"
+    ) {
       if (
-        (langs as any)[(window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang)] !== undefined &&
-        (langs as any)[(window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang)]._system !== undefined
+        (langs as any)[
+          window.localStorage.getItem("fbhrar_locale") ??
+            document.documentElement.lang
+        ] !== undefined &&
+        (langs as any)[
+          window.localStorage.getItem("fbhrar_locale") ??
+            document.documentElement.lang
+        ]._system !== undefined
       ) {
         for (let key of Object.keys(langs.en._system!)) {
           if (
-            (langs as any)[(window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang)]._system[key] !==
-            undefined
+            (langs as any)[
+              window.localStorage.getItem("fbhrar_locale") ??
+                document.documentElement.lang
+            ]._system[key] !== undefined
           ) {
             (sysConfig as any)[key] = JSON.parse(
               JSON.stringify(
-                (langs as any)[(window.localStorage.getItem('fbhrar_locale')??document.documentElement.lang)]._system[key]
+                (langs as any)[
+                  window.localStorage.getItem("fbhrar_locale") ??
+                    document.documentElement.lang
+                ]._system[key]
               )
             );
           }
@@ -122,9 +136,7 @@ export class Notif {
         `</div></div>` +
         `<div class="flex flex-wrap items-center gap-x-4 gap-y-2 w-full justify-center">` +
         `<p class="text-sm leading-6 text-gray-900">` +
-        `<strong class="font-semibold">v<span class="app_version">${
-          storage.version
-        }</span></strong><svg viewBox="0 0 2 2" class="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true">` +
+        `<strong class="font-semibold">v<span class="app_version">${storage.version}</span></strong><svg viewBox="0 0 2 2" class="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true">` +
         `<circle cx="1" cy="1" r="1" /></svg>${meta.msg}</p>` +
         `<a target="_blank" href="${meta.link}"` +
         ` class="flex-none rounded-full bg-gray-900 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">` +
@@ -173,26 +185,24 @@ export class Notif {
             `<div class="text-sm leading-6 text-gray-600 block" id="fbhrr-langs-list">${meta.desc2}</div>` +
             `</div></div>`
           : "") +
-        (meta.showChangelog === true &&
-        Logs.filter((x) => x.version === storage.version)
-          .length > 0
+        (meta.showChangelog === true && Logs.length > 0
           ? `<div class="text-center">` +
             `<div class="mt-10 flex items-center justify-center gap-x-6">` +
-            `<div class="mt-6 text-sm leading-6 text-gray-600 block">- Changes in v${
-              storage.version
-            } -</div>` +
-            `</div><div class="flex items-center justify-center gap-x-6">` +
-            Logs.filter(
-              (x) => x.version === storage.version
-            ).map((x) => {
-              return `<div class="text-sm leading-6 text-gray-600 block">${x.changes
-                .map((xc) => {
-                  return `(${xc.type}) ${xc.description}`;
-                })
-                .join(
-                  '<svg viewBox="0 0 2 2" class="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true"><circle cx="1" cy="1" r="1" /></svg>'
-                )}</div>`;
-            }) +
+            `<div class="mt-6 text-sm leading-6 text-gray-600 block">- Changelog -</div>` +
+            `</div><div class="flex items-center justify-center gap-x-6" style="flex-direction: column;">` +
+            Logs.map(
+              (commit) => `
+            <div class="mt-10">
+            ${
+              `v${storage.version}` == commit.tag
+                ? `<div class="flex-none rounded-full bg-${meta.notif.colour}-900 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-${meta.notif.colour}-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-${meta.notif.colour}-900">${commit.tag}</div>`
+                : `<div class="text-lg font-bold">${commit.tag}</div>`
+            }              
+              <div class="text-sm text-gray-600">${commit.date}</div>
+              <div class="mt-2 text-sm">${commit.commits.join("<br/>")}</div>
+            </div>
+          `
+            ).join("") +
             `</div></div>`
           : "") +
         `</div></div>`

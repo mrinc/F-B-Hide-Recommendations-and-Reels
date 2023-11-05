@@ -2,6 +2,7 @@ FROM node:16
 
 RUN mkdir /home/buildp
 
+ADD .git/ /home/buildp/.git/
 ADD package.json /home/buildp/package.json
 ADD package-lock.json /home/buildp/package-lock.json
 ADD tsconfig.* /home/buildp/

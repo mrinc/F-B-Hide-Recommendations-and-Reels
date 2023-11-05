@@ -12,6 +12,11 @@ if [ "$(PKVERSION)" == null ]; then
   exit 3
 fi
 
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Building changelog"
+  node scripts/gitlog.js
+fi
+
 echo "Compiling source"
 zip "dist/source.latest.zip" -r ./*
 zip "dist/source.v${PKVERSION}.zip" -r ./*
