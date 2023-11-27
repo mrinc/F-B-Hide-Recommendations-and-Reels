@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels#readme",
   "dependencies": {
-    "@types/webextension-polyfill": "^0.10.0"
+    "@types/webextension-polyfill": "^0.10.7"
   },
   "devDependencies": {
     "tailwindcss": "^3.3.3",
