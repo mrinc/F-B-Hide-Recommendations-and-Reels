@@ -19,3 +19,9 @@ Make a pull request back into master and we'll check and merge it
 Run `build.sh` and it will compile the extensions into the `dist/packed` dir.  
 Requirements: docker (v24+), docker compose (v1.29+)  
 Build is handled inside a container for isolation and consistency.
+
+# Sponsor/Support  
+You can support this plugins development with [liberapay](https://liberapay.com/mitchellr/donate)  
+
+![Liberapay patrons](https://img.shields.io/liberapay/patrons/mitchellr?link=https%3A%2F%2Fliberapay.com%2Fmitchellr%2Fdonate)
+
