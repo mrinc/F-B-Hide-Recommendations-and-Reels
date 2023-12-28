@@ -136,6 +136,8 @@ export interface ConfigDefition extends ConfigBase {
   createPost: boolean;
   hideBlocks: boolean;
   games: boolean;
+  fullPageLoader: boolean;
+  contentCovers: boolean
 }
 export interface SmartStorageType {
   data(): ConfigDefition;
@@ -148,7 +150,7 @@ export class SmartStorageTypeDefaults {
   data(): ConfigDefition {
     return {
       version: "0.0.0",
-      needsDelay: true,
+      needsDelay: false,
       friendRequests: true,
       reels: true,
       containsReels: true,
@@ -163,6 +165,8 @@ export class SmartStorageTypeDefaults {
       createPost: true,
       hideBlocks: false,
       games: true,
+      fullPageLoader: false,
+      contentCovers: true
     };
   }
 }
