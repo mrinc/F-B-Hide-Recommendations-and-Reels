@@ -6,6 +6,19 @@ interface MWindow extends Window {
 }
 declare let window: MWindow;
 
+const storage = new Storage();
+storage.setup().then(() => console.debug("storage ready."));
+
+// if (window.location.pathname === "/") {
+//   document
+//     .querySelectorAll('div[role="main"]')
+//     .forEach((x) => x.setAttribute("visible", "hide"));
+// } else {
+//   document
+//     .querySelectorAll('div[role="main"]')
+//     .forEach((x) => x.setAttribute("visible", "show"));
+// }
+
 let consolelogs: Array<{ type: "log" | "warn" | "error"; msg: string }> = [];
 const consoleLog = {
   _addLog: (type: "log" | "warn" | "error", msg: string) => {
@@ -56,7 +69,29 @@ const DEBUG_MODE =
 
 if (DEBUG_MODE) consoleLog.warn("DEBUG MODE ENABLED");
 
-const storage = new Storage();
+// let fullPageLoaderConfig: any = null;
+// storage.setup().then(() => {
+//   storage.get("data").then(async (config) => {
+//     fullPageLoaderConfig = config;
+//     if (config.fullPageLoader === true) return;
+//     document
+//       .querySelectorAll('div[role="main"]')
+//       .forEach((x) => x.setAttribute("visible", "show"));
+//   });
+// });
+// window.addEventListener("popstate", function (event) {
+//   if (window.location.pathname === "/") {
+//     document
+//       .querySelectorAll('div[role="main"]')
+//       .forEach((x) => x.setAttribute("visible", "hide"));
+//     if (fullPageLoaderConfig !== null)
+//       contentCleaner("post-state", false, fullPageLoaderConfig);
+//   } else {
+//     document
+//       .querySelectorAll('div[role="main"]')
+//       .forEach((x) => x.setAttribute("visible", "show"));
+//   }
+// });
 
 const redactAddElem = (key: string, elemA: Element, config: any) => {
   let elem = elemA as HTMLElement;
@@ -73,6 +108,9 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
   });
 
   elem.classList.add("redact-elem");
+  if (config.contentCovers !== false) {
+    elem.classList.add("redact-elem-cover");
+  }
   if (config.hideBlocks === true) {
     elem.classList.add("complete-redact");
   }
@@ -104,6 +142,7 @@ const redactAddElem = (key: string, elemA: Element, config: any) => {
       }
       e.preventDefault();
       elem.classList.add("temp-show");
+      elem.classList.add("redact-elem-cover");
     });
   }
 };
@@ -210,6 +249,7 @@ const findFeedHolder = (lang: string) => {
   return null;
 };
 
+let paused = false;
 let triedAllLangs = false;
 let triedTwice = false;
 let errorNotified = false;
@@ -222,11 +262,32 @@ const contentCleaner = (
   if (errorNotified) return;
   if (window.pausecc === true) return;
   if (window.location.pathname !== "/" && !DEBUG_MODE) {
+    paused = true;
     consoleLog.log(
       "contentCleaner:v" + storage.version + " - paused as not on home page"
     );
     definedFeedHolder = false;
+    /*document
+      .querySelectorAll('div[role="main"]')
+      .forEach((x) => x.setAttribute("visible", "show"));*/
     return;
+  }
+  if (paused) {
+    paused = false;
+    /*document
+      .querySelectorAll('div[role="main"]')
+      .forEach((x) => x.setAttribute("visible", "hide"));*/
+    // scrollTo(0, 1024);
+    // setTimeout(() => {
+    //   scrollTo(0, 0);
+    //   contentCleaner("main-loader", false, config);
+    //   setTimeout(() => {
+    //     scrollTo(0, 0);
+    //     document
+    //       .querySelectorAll('div[role="main"]')
+    //       .forEach((x) => x.setAttribute("visible", "show"));
+    //   }, 100);
+    // }, 1000);
   }
   consoleLog.log(
     "contentCleaner:v" + storage.version + " " + key + " lang: " + asLang
@@ -669,9 +730,11 @@ const contentCleaner = (
     );
   }
 } else*/
-document.body.onload = async () => {
+//document.body.onload = async () => {
+const runApp = async () => {
   await storage.setup();
   storage.get("data").then(async (config) => {
+    setTimeout(() => contentCleaner(undefined, false, config), 0);
     if (config.version !== storage.version) {
       // new version alert
     }
@@ -699,7 +762,6 @@ document.body.onload = async () => {
       () => contentCleaner("timer", false, config),
       60000
     );
-    contentCleaner(undefined, false, config);
 
     let lastAction = 0;
     let debounceTimer: NodeJS.Timeout | null = null;
@@ -748,7 +810,29 @@ document.body.onload = async () => {
           forceReloadRequested = true;
         }
       });
+
+    console.warn(
+      "FB Hide Recommendations and Reels: Loaded content script - v" +
+        storage.version
+    );
+
+    /*if (config.fullPageLoader === false) {
+      document
+        .querySelectorAll('div[role="main"]')
+        .forEach((x) => x.setAttribute("visible", "show"));
+      return;
+    }
+    scrollTo(0, 1024);
+    setTimeout(() => {
+      scrollTo(0, 0);
+      contentCleaner("main-loader", false, config);
+      setTimeout(() => {
+        scrollTo(0, 0);
+        document
+          .querySelectorAll('div[role="main"]')
+          .forEach((x) => x.setAttribute("visible", "show"));
+      }, 100);
+    }, 1000);*/
   });
 };
-
-console.warn('FB Hide Recommendations and Reels: Loaded content script - v' + storage.version);
+runApp();

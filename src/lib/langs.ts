@@ -73,6 +73,11 @@ export interface SystemConfigSystemPopup {
   bannerHelloUpgrade?: SystemConfigSystemBanner;
   formFieldHello?: SystemConfigSystemFormForm;
   form?: SystemConfigSystemForm;
+  donate: {
+    url: string;
+    imgAlt: string;
+    img: string;
+  };
 }
 export interface SystemConfigSystem extends SystemConfigSystemPopup {}
 export interface SystemConfig {
@@ -88,21 +93,12 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
     commentedOnFriend: "commented.",
     peopleKnow: "People you may know",
     friendRequests: "Friend Requests",
-    suggested: [
-      "Suggested for you",
-      "Suggested groups"
-    ],
+    suggested: ["Suggested for you", "Suggested groups", '>Join<', '>Follow<', "Suggested Events"],
     tagged: "was tagged.",
     answeredQuestion: "answered this question.",
-    containsReels: [
-      "Reels",
-      "Stories"
-    ],
+    containsReels: ["Reels", "Stories"],
     createAPost: "Create a post",
-    games: [
-      'facebook.com/games/',
-      '/instantgames/play/'
-    ],
+    games: ["facebook.com/games/", "/instantgames/play/"],
 
     _ad: "AD",
     _reelsBlock: "Reels",
@@ -118,6 +114,11 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
 
     _system: {
       css: {},
+      donate: {
+        url: "https://liberapay.com/mitchellr/donate",
+        imgAlt: "Donate using Liberapay",
+        img: "https://liberapay.com/assets/widgets/donate.svg",
+      },
       header: {
         msg: "Something not working?",
         link: "https://github.com/mrinc/Facebook-Hide-Recommendations-and-Reels/issues/new",
@@ -238,7 +239,8 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
                 title: "Friend recommendations",
                 desc: "Friends 'recommendations' or people you may know.",
                 addedInVersion: "1.0.0",
-              },{
+              },
+              {
                 type: "checkbox",
                 id: "games",
                 title: "Games",
@@ -297,6 +299,20 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
                 desc: "You can click to show/hide specific elements.",
                 addedInVersion: "1.0.0",
               },
+              // {
+              //   type: "checkbox",
+              //   id: "fullPageLoader",
+              //   title: "Full page loader",
+              //   desc: "Shows a loader when loading the FB home page before the plugin runs it's cleanups.",
+              //   addedInVersion: "1.26.46",
+              // },
+              {
+                type: "checkbox",
+                id: "contentCovers",
+                title: "Show content covers",
+                desc: "Shows blocks over content that is hidden which is translucent (when hovered) - this stops weird scroll behavour. When disabled, blocks are hidden",
+                addedInVersion: "1.26.46",
+              },
             ],
           },
           {
@@ -317,23 +333,12 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
   },
   pl: {
     name: "Polish",
-    newsFeedPosts: [
-      "Posty na kanale aktualności",
-      "Posty w Aktualnościach"
-    ],
+    newsFeedPosts: ["Posty na kanale aktualności", "Posty w Aktualnościach"],
     reelsBlock: "Rolki i krótkie filmy",
     containsReels: "Rolki",
-    commentedOn: [
-      "skomentował post z",
-      "skomentował"
-    ],
-    peopleKnow: [
-      "Ludzie których możesz znać",
-      "Osoby, które możesz znać"
-    ],
-    suggested: [
-      "Proponowana dla Ciebie"
-    ],
+    commentedOn: ["skomentował post z", "skomentował"],
+    peopleKnow: ["Ludzie których możesz znać", "Osoby, które możesz znać"],
+    suggested: ["Proponowana dla Ciebie"],
     answeredQuestion: "odpowiedziało na to pytanie",
     createAPost: "Utwórz wpis",
   },
@@ -375,10 +380,7 @@ export const langs: Record<string, LangType & LangText & SystemConfig> = {
   nl: {
     name: "Dutch",
     newsFeedPosts: "Berichten in het nieuwsoverzicht",
-    reelsBlock:[
-      "Reels en korte video's",
-      "Reels and korte video's"
-    ],
+    reelsBlock: ["Reels en korte video's", "Reels and korte video's"],
     commentedOn: "reageerde op een bericht van",
     peopleKnow: "Mensen die je misschien kent",
     suggested: "Aanbevolen voor jou",

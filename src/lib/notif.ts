@@ -135,12 +135,27 @@ export class Notif {
         ` style="clip-path: polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)">` +
         `</div></div>` +
         `<div class="flex flex-wrap items-center gap-x-4 gap-y-2 w-full justify-center">` +
-        `<p class="text-sm leading-6 text-gray-900">` +
-        `<strong class="font-semibold">v<span class="app_version">${storage.version}</span></strong><svg viewBox="0 0 2 2" class="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true">` +
-        `<circle cx="1" cy="1" r="1" /></svg>${meta.msg}</p>` +
-        `<a target="_blank" href="${meta.link}"` +
+        `<p class="text-sm leading-6 text-gray-900" style="display: inline-flex;">` +
+        `<span style="margin-left: 10px; background: transparent;" `+
+        ` class="flex-none rounded-full px-3.5 py-1 text-sm font-semibold text-gray-900">` +
+        `v<strong class="font-semibold"><span class="app_version">${storage.version}</span></strong>`+
+        `</span>`+
+        //`<strong class="font-semibold">v<span class="app_version">${storage.version}</span></strong>`+
+        //`<svg viewBox="0 0 2 2" class="mx-2 inline h-0.5 w-0.5 fill-current" aria-hidden="true">` +
+        //`<circle cx="1" cy="1" r="1" /></svg>${meta.msg}</p>` +
+        //`<a href="${meta.donate.url}"><img alt="${meta.donate.imgAlt}" src="${meta.donate.img}" /></a>` +
+
+        `<a style="margin-left: 10px; background: #f6c915;" target="_blank" href="${meta.donate.url}"` +
+        ` class="flex-none rounded-full px-3.5 py-1 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">` +
+        `Donate/Sponsor`+
+        //`<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><path fill="#FFF" d="M32.73 56.2651c-2.5867 0-4.6175-.3376-6.0925-1.0107s-2.5308-1.5936-3.1708-2.7611-.9458-2.4933-.9275-4.015.2267-3.1234.6284-4.8357l6.9391-29.0143 8.47-1.3108-7.595 31.4733c-.1458.655-.2275 1.2567-.2458 1.8025s.0817 1.0292.3 1.4475.5917.7566 1.12 1.0108 1.2658.42 2.2133.4925zM40.5333 28.0209c1.46-.4367 3.1267-.8284 5.0025-1.175s3.9075-.5183 6.0933-.5183 3.7985.3092 5.2726.9283 2.6864 1.4667 3.6341 2.5409 1.6475 2.3316 2.1024 3.77.6832 2.9783.6832 4.6183c0 2.6583-.4373 5.09-1.3214 7.2942s-2.076 4.1075-3.6237 5.71-3.4059 2.851-5.5763 3.7475-4.5235 1.3344-7.0718 1.3344c-1.2391 0-2.4775-.1104-3.7158-.3296l-2.4592 9.8912h-8.0865zM43.4867 49.3867c.6192.1458 1.3842.2133 2.295.2133 1.42 0 2.7133-.2583 3.8792-.7875s2.1583-1.265 2.9783-2.2125 1.4557-2.0842 1.9117-3.415.6827-2.795.6827-4.3983-.3467-2.8958-1.0379-3.9892-1.894-1.6391-3.6057-1.6391c-1.1667 0-2.2592.1092-3.2792.3283z"/></svg>`
+        `</a>` +
+        
+        `<a style="margin-left: 10px;" target="_blank" href="${meta.link}"` +
         ` class="flex-none rounded-full bg-gray-900 px-3.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">` +
-        `${meta.linkMsg}<span aria-hidden="true">&rarr;</span></a>` +
+        `${meta.linkMsg}`+
+        //`<span style="margin-left: 5px;" aria-hidden="true">&rarr;</span>`+
+        `</a>` +
         `</div></div>`
       );
 
@@ -269,7 +284,10 @@ export class Notif {
     await storage.setup();
     let output = "";
     if (meta.css) output += await Notif.generate("css", meta.css);
-    if (meta.header) output += await Notif.generate("header", meta.header);
+    if (meta.header) output += await Notif.generate("header", {
+      ...meta.header,
+      donate: meta.donate
+    });
     if (meta.banner) output += await Notif.generate("banner", meta.banner);
     if (meta.form) output += await Notif.generate("form", meta.form);
     return output;
